@@ -13,18 +13,20 @@ POST `/devices/register`
     "password": "qwerty",
     "config": {
         "name": "Дача",
-        "port1": {
-            "enabled": true,
-            "name": "Кактус Дэни",
-            "low_level_boundary": 300,
-            "medium_level_boundray": 470,
-        },
-        "port2": {
-            "enabled": false,
-            "name": "Кактус Мэкси",
-            "low_level_boundary": 300,
-            "medium_level_boundary": 470,
-        }
+        "ports": [
+            "port1": {
+                "enabled": true,
+                "name": "Кактус Дэни",
+                "low_level_boundary": 300,
+                "medium_level_boundary": 470,
+            },
+            "port2": {
+                "enabled": false,
+                "name": "Кактус Мэкси",
+                "low_level_boundary": 300,
+                "medium_level_boundary": 470,
+            }
+        ],
     }
 }
 ```
@@ -91,18 +93,20 @@ PATCH `/devices/config`
     "password": "qwerty",
     "config": {
         "name": "Дача",
-        "port1": {
-            "enabled": true,
-            "name": "Кактус Дэни",
-            "low_level_boundary": 300,
-            "medium_level_boundary": 470,
-        },
-        "port2": {
-            "enabled": false,
-            "name": "Кактус Мэкси",
-            "low_level_boundary": 300,
-            "medium_level_boundary": 470,
-        }
+        "ports": [
+            "port1": {
+                "enabled": true,
+                "name": "Кактус Дэни",
+                "low_level_boundary": 300,
+                "medium_level_boundary": 470,
+            },
+            "port2": {
+                "enabled": false,
+                "name": "Кактус Мэкси",
+                "low_level_boundary": 300,
+                "medium_level_boundary": 470,
+            }
+        ],
     }
 }
 ```
