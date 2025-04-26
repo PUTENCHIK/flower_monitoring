@@ -4,7 +4,7 @@
 
 ### Registration
 
-POST `/device/register`
+POST `/devices/register`
 
 + Request
 ```
@@ -31,7 +31,7 @@ POST `/device/register`
 
 ### Update data
 
-PATCH `/device/data`
+PATCH `/devices/data`
 
 + Request
 ```
@@ -51,7 +51,7 @@ PATCH `/device/data`
 
 ### Getting data
 
-GET `/device/data`
+GET `/devices/data`
 
 + Request
 ```
@@ -82,7 +82,7 @@ GET `/device/data`
 
 ### Update config
 
-PATCH `/device/config`
+PATCH `/devices/config`
 
 + Request
 ```
@@ -118,10 +118,9 @@ devices (
     deviceToken TEXT NOT NULL,
     password TEXT NOT NULL,
     name TEXT,
-    last_activity TEXT,
-    created_at TEXT NOT NULL,
-    deleted_at TEXT,
-    FOREIGN KEY (config_id) REFERENCES configs(id)
+    last_activity DateTime,
+    created_at DateTime NOT NULL,
+    deleted_at DateTime
 )
 ```
 
@@ -132,7 +131,7 @@ ports(
     sensor_value INTEGER,
     port_number INTEGER NOT NULL,
     enabled BOOLEAN NOT NULL,
-    name TEXT,
+    name TEXT NOT NULL,
     low_level_boundary INTEGER,
     medium_level_boundary INTEGER,
     FOREIGN KEY (device_id) REFERENCES devices(id)

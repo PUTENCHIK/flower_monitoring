@@ -1,7 +1,27 @@
-from fastapi import FastAPI
+from contextlib import asynccontextmanager
 
+from fastapi import FastAPI
+from server.src import devices_router
+from server.src.database import create_db_and_tables
+
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    print("App starting")
+    await create_db_and_tables()
+    yield
+    print("App terminating")
 
 app = FastAPI()
+
+app.include_router(devices_router)
+
+
+@app.on_event("startup")
+async def startup_event():
+    print("Starting up...")
+    await create_db_and_tables()
+    print("Database and tables created (if they didn't exist).")
 
 
 @app.post("/test")

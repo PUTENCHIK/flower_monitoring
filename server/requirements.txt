@@ -1,2 +1,4 @@
 fastapi
 uvicorn[standart]
+sqlalchemy
+aiosqlite
