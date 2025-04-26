@@ -10,7 +10,22 @@ POST `/device/register`
 ```
 {
     "deviceToken": "dJdq4Rl9ul",
-    "password": "qwerty"
+    "password": "qwerty",
+    "config": {
+        "name": "Дача",
+        "port1": {
+            "enabled": true,
+            "name": "Кактус Дэни",
+            "low_level_boundary": 300,
+            "medium_level_boundray": 470,
+        },
+        "port2": {
+            "enabled": false,
+            "name": "Кактус Мэкси",
+            "low_level_boundary": 300,
+            "medium_level_boundary": 470,
+        }
+    }
 }
 ```
 
@@ -80,13 +95,13 @@ PATCH `/device/config`
             "enabled": true,
             "name": "Кактус Дэни",
             "low_level_boundary": 300,
-            "medium_level_boundray": 470,
+            "medium_level_boundary": 470,
         },
         "port2": {
             "enabled": false,
             "name": "Кактус Мэкси",
             "low_level_boundary": 300,
-            "medium_level_boundray": 470,
+            "medium_level_boundary": 470,
         }
     }
 }
@@ -119,7 +134,7 @@ ports(
     enabled BOOLEAN NOT NULL,
     name TEXT,
     low_level_boundary INTEGER,
-    medium_level_boundray INTEGER,
+    medium_level_boundary INTEGER,
     FOREIGN KEY (device_id) REFERENCES devices(id)
 )
 ```
