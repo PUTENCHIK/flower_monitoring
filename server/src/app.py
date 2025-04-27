@@ -12,16 +12,9 @@ async def lifespan(app: FastAPI):
     yield
     print("App terminating")
 
-app = FastAPI()
 
+app = FastAPI(lifespan=lifespan)
 app.include_router(devices_router)
-
-
-@app.on_event("startup")
-async def startup_event():
-    print("Starting up...")
-    await create_db_and_tables()
-    print("Database and tables created (if they didn't exist).")
 
 
 @app.post("/test")

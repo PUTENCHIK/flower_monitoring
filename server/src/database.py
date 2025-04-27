@@ -23,4 +23,5 @@ database_path = ("sqlite+aiosqlite:///"
 
 engine = create_async_engine(database_path,
                              echo=False)
+
 BaseDBModel = declarative_base()

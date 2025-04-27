@@ -13,20 +13,20 @@ POST `/devices/register`
     "password": "qwerty",
     "config": {
         "name": "Дача",
-        "ports": [
-            "port1": {
+        "ports": {
+            "1": {
                 "enabled": true,
                 "name": "Кактус Дэни",
                 "low_level_boundary": 300,
                 "medium_level_boundary": 470,
             },
-            "port2": {
+            "2": {
                 "enabled": false,
                 "name": "Кактус Мэкси",
                 "low_level_boundary": 300,
                 "medium_level_boundary": 470,
             }
-        ],
+        },
     }
 }
 ```
@@ -40,14 +40,14 @@ PATCH `/devices/data`
 {
     "deviceToken": "dJdq4Rl9ul",
     "password": "qwerty",
-    "data": [
-        "port1": {
+    "ports": {
+        "1": {
             "value": 215
         },
-        "port2": {
+        "2": {
             "value": 400,
         }
-    ]
+    }
 }
 ```
 
@@ -67,13 +67,13 @@ GET `/devices/data`
 {
     "name": "Дача",
     "last_activity": "25.04.2025 11:03",
-    "data": [
-        "port1": {
+    "ports": [
+        "1": {
             "name": "Кактус Дэни",
             "value": 13,
             "state": "low"
         },
-        "port2": {
+        "2": {
             "name": "Кактус Мэкси",
             "value": 57,
             "status": "medium"
@@ -94,13 +94,13 @@ PATCH `/devices/config`
     "config": {
         "name": "Дача",
         "ports": [
-            "port1": {
+            "1": {
                 "enabled": true,
                 "name": "Кактус Дэни",
                 "low_level_boundary": 300,
                 "medium_level_boundary": 470,
             },
-            "port2": {
+            "2": {
                 "enabled": false,
                 "name": "Кактус Мэкси",
                 "low_level_boundary": 300,
