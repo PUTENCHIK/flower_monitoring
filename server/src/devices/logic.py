@@ -3,7 +3,7 @@ from datetime import datetime
 from fastapi import status
 from sqlalchemy import select, and_
 from sqlalchemy.ext.asyncio import AsyncSession
-from server.src.devices import RegisterRequestModel, UpdateDataRequestModel
+from server.src.devices import RegisterRequestModel, UpdateDataRequestModel, GetRequestModel
 from passlib.context import CryptContext
 
 from server.src.devices.exceptions import DeviceException
@@ -63,6 +63,10 @@ async def _update_data(request: UpdateDataRequestModel, db: AsyncSession):
     if verify_password(request.password, device.password):
         raise DeviceException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid password")
 
+    device.last_activity = datetime.now()
+
+    db.add(device)
+
     for port_number_str, port_config in request.ports.items():
         try:
             port_number = int(re.findall("\\d+", port_number_str)[0])
@@ -78,9 +82,53 @@ async def _update_data(request: UpdateDataRequestModel, db: AsyncSession):
         if not port:
             raise DeviceException(status_code=status.HTTP_404_NOT_FOUND, detail="Invalid port")
 
-        port.sensor_value = port_config.value
+        value = port_config.value
+        if port_config.value > 600:
+            value = 600
+        elif port_config.value < 200:
+            value = 200
+
+        port.sensor_value = value
 
         db.add(port)
 
     await db.flush()
     await db.commit()
+
+
+async def _get_data(request: GetRequestModel, db: AsyncSession):
+    device = await db.execute(select(Device).filter(Device.deviceToken == request.deviceToken))
+    device = device.scalars().first()
+
+    if not device:
+        raise DeviceException(status_code=status.HTTP_404_NOT_FOUND, detail="Invalid deviceToken")
+
+    if device.last_activity is None:
+        raise DeviceException(status_code=status.HTTP_204_NO_CONTENT, detail="Data not received yet")
+
+    response = {
+        "name": device.name,
+        "last_activity": device.last_activity.strftime("%Y-%m-%d %H:%M"),
+        "ports": {}
+    }
+
+    ports = await db.execute(select(Port).filter(and_(Port.device_id == device.id)))
+    ports = ports.scalars().all()
+
+    for i, port in enumerate(ports):
+        if not port.enabled:
+            continue
+
+        state = "high"
+        if port.sensor_value < port.low_level_boundary:
+            state = "low"
+        elif port.sensor_value < port.medium_level_boundary:
+            state = "medium"
+
+        response["ports"][str(port.port_number)] = {
+            "name": port.name,
+            "value": port.sensor_value,
+            "state": state
+        }
+
+    return response

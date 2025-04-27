@@ -53,7 +53,7 @@ PATCH `/devices/data`
 
 ### Getting data
 
-GET `/devices/data`
+POST `/devices/data`
 
 + Request
 ```
@@ -67,7 +67,7 @@ GET `/devices/data`
 {
     "name": "Дача",
     "last_activity": "25.04.2025 11:03",
-    "ports": [
+    "ports": {
         "1": {
             "name": "Кактус Дэни",
             "value": 13,
@@ -78,7 +78,7 @@ GET `/devices/data`
             "value": 57,
             "status": "medium"
         }
-    ]
+    }
 }
 ```
 
@@ -93,7 +93,7 @@ PATCH `/devices/config`
     "password": "qwerty",
     "config": {
         "name": "Дача",
-        "ports": [
+        "ports": {
             "1": {
                 "enabled": true,
                 "name": "Кактус Дэни",
@@ -106,7 +106,7 @@ PATCH `/devices/config`
                 "low_level_boundary": 300,
                 "medium_level_boundary": 470,
             }
-        ],
+        },
     }
 }
 ```

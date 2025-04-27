@@ -34,3 +34,7 @@ class UpdateDataRequestModel(BaseModel):
     deviceToken: str
     password: str
     ports: Dict[str, PortData]
+
+
+class GetRequestModel(BaseModel):
+    deviceToken: str
