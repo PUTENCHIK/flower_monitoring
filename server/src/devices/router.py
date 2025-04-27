@@ -1,10 +1,10 @@
-from fastapi import APIRouter, Depends, Response, status
+from fastapi import APIRouter, Depends, status
 from sqlalchemy.ext.asyncio import AsyncSession
 from starlette.responses import JSONResponse
 import logging
 from server.src.database import get_db_session
 from server.src.devices import RegisterRequestModel, UpdateDataRequestModel, _register_device, \
-    _update_data, GetRequestModel, _get_data
+    _update_data, GetRequestModel, _get_data, UpdateConfigRequestModel, _update_config
 from server.src.devices.exceptions import DeviceException
 
 devices_router = APIRouter(prefix=f"/devices")
@@ -17,7 +17,6 @@ async def register_device(device: RegisterRequestModel, db: AsyncSession = Depen
         await _register_device(device, db)
         return JSONResponse(content={}, status_code=status.HTTP_201_CREATED)
     except DeviceException as exception:
-        logger.info(f"Device Exception: {exception}")
         return JSONResponse(content={"message": exception.detail}, status_code=exception.status_code)
     except Exception as exception:
         logger.exception(f"Server Exception: {exception}")
@@ -31,7 +30,6 @@ async def update_data(device: UpdateDataRequestModel, db: AsyncSession = Depends
 
         return JSONResponse(content={}, status_code=status.HTTP_200_OK)
     except DeviceException as exception:
-        logger.info(f"Device Exception: {exception}")
         return JSONResponse(content={"message": exception.detail}, status_code=exception.status_code)
     except Exception as exception:
         logger.exception(f"Server Exception: {exception}")
@@ -45,7 +43,19 @@ async def get_data(device: GetRequestModel, db: AsyncSession = Depends(get_db_se
 
         return JSONResponse(content=response, status_code=status.HTTP_200_OK)
     except DeviceException as exception:
-        logger.info(f"Device Exception: {exception}")
+        return JSONResponse(content={"message": exception.detail}, status_code=exception.status_code)
+    except Exception as exception:
+        logger.exception(f"Server Exception: {exception}")
+        return JSONResponse(content={}, status_code=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+@devices_router.put("/config")
+async def update_config(device: UpdateConfigRequestModel, db: AsyncSession = Depends(get_db_session)):
+    try:
+        await _update_config(device, db)
+
+        return JSONResponse(content={}, status_code=status.HTTP_200_OK)
+    except DeviceException as exception:
         return JSONResponse(content={"message": exception.detail}, status_code=exception.status_code)
     except Exception as exception:
         logger.exception(f"Server Exception: {exception}")

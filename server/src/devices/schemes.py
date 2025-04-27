@@ -38,3 +38,9 @@ class UpdateDataRequestModel(BaseModel):
 
 class GetRequestModel(BaseModel):
     deviceToken: str
+
+
+class UpdateConfigRequestModel(BaseModel):
+    deviceToken: str
+    password: str
+    config: DeviceConfig

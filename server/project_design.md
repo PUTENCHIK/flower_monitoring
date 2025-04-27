@@ -84,7 +84,7 @@ POST `/devices/data`
 
 ### Update config
 
-PATCH `/devices/config`
+PUT `/devices/config`
 
 + Request
 ```

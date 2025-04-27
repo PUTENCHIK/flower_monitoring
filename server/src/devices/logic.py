@@ -3,7 +3,7 @@ from datetime import datetime
 from fastapi import status
 from sqlalchemy import select, and_
 from sqlalchemy.ext.asyncio import AsyncSession
-from server.src.devices import RegisterRequestModel, UpdateDataRequestModel, GetRequestModel
+from server.src.devices import RegisterRequestModel, UpdateDataRequestModel, GetRequestModel, UpdateConfigRequestModel
 from passlib.context import CryptContext
 
 from server.src.devices.exceptions import DeviceException
@@ -18,6 +18,11 @@ def get_password_hash(password: str) -> str:
 
 def verify_password(plain_password: str, hashed_password: str) -> bool:
     return pwd_context.verify(plain_password, hashed_password)
+
+
+async def get_device_by_token(device_token: str, db: AsyncSession) -> Device | None:
+    result = await db.execute(select(Device).filter(Device.deviceToken == device_token))
+    return result.scalar_one_or_none()
 
 
 async def _register_device(request: RegisterRequestModel, db: AsyncSession):
@@ -54,18 +59,15 @@ async def _register_device(request: RegisterRequestModel, db: AsyncSession):
 
 
 async def _update_data(request: UpdateDataRequestModel, db: AsyncSession):
-    device = await db.execute(select(Device).filter(Device.deviceToken == request.deviceToken))
-    device = device.scalars().first()
+    device = await get_device_by_token(request.deviceToken, db)
 
     if not device:
         raise DeviceException(status_code=status.HTTP_404_NOT_FOUND, detail="Invalid deviceToken")
 
-    if verify_password(request.password, device.password):
+    if not verify_password(request.password, device.password):
         raise DeviceException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid password")
 
     device.last_activity = datetime.now()
-
-    db.add(device)
 
     for port_number_str, port_config in request.ports.items():
         try:
@@ -90,9 +92,6 @@ async def _update_data(request: UpdateDataRequestModel, db: AsyncSession):
 
         port.sensor_value = value
 
-        db.add(port)
-
-    await db.flush()
     await db.commit()
 
 
@@ -132,3 +131,46 @@ async def _get_data(request: GetRequestModel, db: AsyncSession):
         }
 
     return response
+
+
+async def _update_config(request: UpdateConfigRequestModel, db: AsyncSession):
+    device = await db.execute(select(Device).filter(Device.deviceToken == request.deviceToken))
+    device = device.scalars().first()
+
+    if not device:
+        raise DeviceException(status_code=status.HTTP_404_NOT_FOUND, detail="Invalid deviceToken")
+
+    if not verify_password(request.password, device.password):
+        raise DeviceException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid password")
+
+    device.name = request.config.name
+
+    for port_number_str, port_config in request.config.ports.items():
+        try:
+            port_number = int(re.findall("\\d+", port_number_str)[0])
+        except IndexError:
+            raise DeviceException(status.HTTP_400_BAD_REQUEST, "Invalid port name specified")
+
+        if port_number < 0:
+            raise DeviceException(status.HTTP_400_BAD_REQUEST, "Invalid port name specified")
+
+        port = await db.execute(select(Port).filter(and_(Port.device_id == device.id, Port.port_number == port_number)))
+        port = port.scalars().first()
+
+        if not port:
+            db_port = Port(
+                device_id=device.id,
+                port_number=port_number,
+                enabled=port_config.enabled,
+                name=port_config.name,
+                low_level_boundary=port_config.low_level_boundary,
+                medium_level_boundary=port_config.medium_level_boundary,
+            )
+
+        else:
+            port.enabled = port_config.enabled
+            port.name = port_config.name
+            port.low_level_boundary = port_config.low_level_boundary
+            port.medium_level_boundary = port_config.medium_level_boundary
+
+    await db.commit()
