@@ -1,3 +1,4 @@
+#include <SoftwareSerial.h>
 #include <ESP8266WiFi.h>
 #include <ESP8266HTTPClient.h>
 
@@ -6,18 +7,20 @@ const char* ssid     = "Galaxy A16";        // Замените на ваш SSID
 const char* password = "qwerty4321";    // Замените на ваш пароль
 
 // --- Конфигурация API ---
-const char* apiServer = "http://localhost:5050"; // Замените на адрес вашего API сервера
+const char* apiServer = "http://127.0.0.1:5050"; // Замените на адрес вашего API сервера
 const char* apiEndpoint = "/test"; // Замените на ваш API endpoint (например, /data)
 
-// --- Пин для Serial Communication с Arduino Nano ---
-const int rxPin = 2; // GPIO2 (D4 на некоторых платах) - RX ESP8266 (прием данных от Arduino)
+// Определяем пины для SoftwareSerial
+const int RX_PIN = 4; // ESP8266 RX подключен к Arduino TX (через делитель напряжения!)
+const int TX_PIN = 2; // ESP8266 TX подключен к Arduino RX
+
+// Создаем объект SoftwareSerial
+SoftwareSerial arduinoSerial(RX_PIN, TX_PIN); // RX, TX
 
 void setup() {
   Serial.begin(9600);
-  Serial.println("Starting...");
-
-  // Инициализация Serial для общения с Arduino Nano
-  Serial1.begin(9600, SERIAL_8N1, SERIAL_RX_ONLY, rxPin); // Serial1 использует HardwareSerial
+  arduinoSerial.begin(9600);
+  arduinoSerial.println("Starting...");
 
   // Подключение к Wi-Fi
   WiFi.begin(ssid, password);
@@ -25,26 +28,24 @@ void setup() {
     delay(500);
     Serial.print(".");
   }
-  Serial.println("");
-  Serial.println("WiFi connected");
-  Serial.print("IP address: ");
-  Serial.println(WiFi.localIP());
+  arduinoSerial.println("\nWiFi connected");
+  arduinoSerial.print("IP address: ");
+  arduinoSerial.println(WiFi.localIP());
 }
 
 void loop() {
   // Проверяем, пришли ли данные от Arduino Nano
-  if (Serial1.available() > 0) {
-    String arduinoInput = Serial1.readStringUntil('\n'); // Читаем строку до символа новой строки
-    arduinoInput.trim(); // Убираем лишние пробелы и символ новой строки в конце
-    Serial.print("Received from Arduino: ");
-    Serial.println(arduinoInput);
+  if (arduinoSerial.available()) {
+    String message = arduinoSerial.readStringUntil('\n'); // Читаем строку до символа новой строки
+    message.trim(); // Убираем лишние пробелы и символ новой строки в конце
+    arduinoSerial.println("ESP received: " + message);
+//    arduinoSerial.println("ESP received: " + message);
 
     // Отправляем запрос к API
-    String apiResponse = sendApiRequest(arduinoInput);
+    String apiResponse = sendApiRequest(message);
 
     // Выводим ответ API в консоль
-    Serial.print("API Response: ");
-    Serial.println(apiResponse);
+    arduinoSerial.println("API Response: " + apiResponse);
   }
 }
 
@@ -54,36 +55,42 @@ String sendApiRequest(String data) {
 
   String apiURL = String(apiServer) + String(apiEndpoint);
 
-  Serial.print("Connecting to API: ");
-  Serial.println(apiURL);
+  Serial.println("Connecting to API: " + apiURL);
+  arduinoSerial.println("Connecting to API: " + apiURL);
 
   http.begin(client, apiURL);
-  http.addHeader("Content-Type", "application/x-www-form-urlencoded"); // Указываем тип содержимого
+  http.addHeader("Content-Type", "application/json"); // Указываем тип содержимого
 
-  String postData = "data=" + data; // Формируем данные для отправки в теле POST запроса
+  String postData = "{\"data\":\"" + data + "\"}";
 
-  Serial.print("Sending data: ");
-  Serial.println(postData);
+  Serial.println("Sending data: " + postData);
+  arduinoSerial.println("Sending data: " + postData);
 
   int httpResponseCode = http.POST(postData);
 
-  String payload = "Error"; // Default error message
+  String payload = "Unknown error"; // Default error message
 
   if (httpResponseCode > 0) {
     Serial.print("HTTP Response code: ");
     Serial.println(httpResponseCode);
+    arduinoSerial.print("HTTP Response code: ");
+    arduinoSerial.println(httpResponseCode);
 
     if (httpResponseCode == HTTP_CODE_OK || httpResponseCode == HTTP_CODE_MOVED_PERMANENTLY) {
       payload = http.getString();
-      Serial.print("Payload Received: ");
-      Serial.println(payload);
+      Serial.println("Payload Received: " + payload);
+      arduinoSerial.println("Payload Received: " + payload);
     } else {
       Serial.print("Error code: ");
       Serial.println(httpResponseCode);
+      arduinoSerial.print("Error code: ");
+      arduinoSerial.println(httpResponseCode);
     }
   } else {
     Serial.print("Error connecting: ");
     Serial.println(httpResponseCode);
+    arduinoSerial.print("Error connecting: ");
+    arduinoSerial.println(httpResponseCode);
   }
 
   http.end(); // Закрываем соединение
