@@ -1,27 +1,54 @@
 #include <SoftwareSerial.h>
 
-const int RX_PIN = 2; // Пин Arduino для приема данных от ESP8266
-const int TX_PIN = 3; // Пин Arduino для отправки данных на ESP8266
-
-SoftwareSerial esp8266(RX_PIN, TX_PIN); // Создаем объект SoftwareSerial
+#include "Config.h"
+#include "Memory.h"
+#include "Protocol.h"
 
 void setup() {
-  Serial.begin(9600);   // Инициализация Serial для монитора
-  esp8266.begin(9600); // Инициализация SoftwareSerial для ESP8266
+    Serial.begin(9600);
+    esp8266.begin(9600);
+
+    lastMessageTimer = millis();
+}
+
+void processInput(String input) {
+    if (input == "data") {
+        Serial.println("Current data:");
+        printMemoryData();
+    } else if (input == "reset data") {
+        resetMemoryData();
+        Serial.println("Reset data:");
+        printMemoryData();
+    } else if (input == "cli") {
+        lastMessageTimer = millis();
+        updateESPMode(idCLIMode);
+    } else if (input == "ap") {
+        lastMessageTimer = millis();
+        updateESPMode(idAPMode);
+    }
 }
 
 void loop() {
-  if (esp8266.available()) {
-    // Читаем данные, отправленные с ESP8266 через SoftwareSerial
-    String message = esp8266.readStringUntil('\n');
-    Serial.print("Nano received from ESP8266: ");
-    Serial.println(message);
-  }
-  if (Serial.available()) {
-    String input = Serial.readStringUntil('\n');
-    input.trim(); // Убираем лишние пробелы и символ новой строки
+    if (esp8266.available()) {
+        String message = esp8266.readStringUntil('\n');
+        message.trim();
+        parseMessage(message);
+        expectsAnswer = false;
+    } else if (sendNextStatus) {
+        sendStatus(statusMessageValue);
+        sendNextStatus = false;
+    } else if (Serial.available()) {
+        String input = Serial.readStringUntil('\n');
+        if (!expectsAnswer) {
+            input.trim();
+            processInput(input);
+        } else {
+            Serial.println("[ERROR] Can't send messages while expecting answer: " + String(lastMessageDelay - (millis() - lastMessageTimer)) + " ms");
+        }
+    }
 
-    Serial.println("Nano sending: " + input);
-    esp8266.println(input);
-  }
+    if (expectsAnswer && millis() > lastMessageTimer + lastMessageDelay) {
+        expectsAnswer = false;
+        Serial.println("[WARNING] Too long no answer message");
+    }
 }
