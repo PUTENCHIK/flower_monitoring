@@ -5,10 +5,10 @@ from aiogram.filters import CommandStart, Command
 from aiogram.types import Message, ReplyKeyboardRemove
 from sqlalchemy.ext.asyncio import AsyncSession
 import logging
-from server.src.database import engine
-from server.src.notifications import _add_chat_id_to_device
-from server.src.notifications.exceptions import BotDeviceException
-from server.src.utils import scheduler
+from database import engine
+from notifications import _add_chat_id_to_device
+from notifications.exceptions import BotDeviceException
+from utils import scheduler
 
 logger = logging.getLogger(__name__)
 

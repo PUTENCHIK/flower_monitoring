@@ -25,7 +25,6 @@ class DeviceConfig(BaseModel):
 class RegisterRequestModel(BaseModel):
     deviceToken: str
     password: str
-    config: DeviceConfig
 
 
 class PortData(BaseModel):

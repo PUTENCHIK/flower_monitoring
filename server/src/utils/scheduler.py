@@ -5,9 +5,9 @@ from aiogram import Bot
 from sqlalchemy import select, func, and_
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from server.src import Config
-from server.src.database import engine
-from server.src.devices.models import Device, DeviceChatIDs, Port
+from config import Config
+from database import engine
+from devices.models import Device, DeviceChatIDs, Port
 logger = logging.getLogger(__name__)
 
 

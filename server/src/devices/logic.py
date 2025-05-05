@@ -4,12 +4,12 @@ from fastapi import status
 from sqlalchemy import select, and_
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from server.src import Config
-from server.src.devices import RegisterRequestModel, UpdateDataRequestModel, GetRequestModel, UpdateConfigRequestModel
+from config import Config
+from devices import RegisterRequestModel, UpdateDataRequestModel, GetRequestModel, UpdateConfigRequestModel
 from passlib.context import CryptContext
 
-from server.src.devices.exceptions import DeviceException
-from server.src.devices.models import Device, Port
+from devices.exceptions import DeviceException
+from devices.models import Device, Port
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
@@ -28,31 +28,27 @@ async def get_device_by_token(device_token: str, db: AsyncSession) -> Device | N
 
 
 async def _register_device(request: RegisterRequestModel, db: AsyncSession):
+    found_device = await get_device_by_token(request.deviceToken, db)
+    if found_device is not None:
+        raise DeviceException(status.HTTP_400_BAD_REQUEST, "The device is already registered")
+
     db_device = Device(
         deviceToken=request.deviceToken,
         password=get_password_hash(request.password),
-        name=request.config.name,
+        name="Ваше устройство",
         created_at=datetime.now()
     )
     db.add(db_device)
     await db.flush()
 
-    for port_number_str, port_config in request.config.ports.items():
-        try:
-            port_number = int(re.findall("\\d+", port_number_str)[0])
-        except IndexError:
-            raise DeviceException(status.HTTP_400_BAD_REQUEST, "Invalid port name specified")
-
-        if port_number < 0:
-            raise DeviceException(status.HTTP_400_BAD_REQUEST, "Invalid port name specified")
-
+    for i in range(3):
         db_port = Port(
             device_id=db_device.id,
-            port_number=port_number,
-            enabled=port_config.enabled,
-            name=port_config.name,
-            low_level_boundary=port_config.low_level_boundary,
-            medium_level_boundary=port_config.medium_level_boundary,
+            port_number=i + 1,
+            enabled=True,
+            name=f"Датчик {i+1}",
+            low_level_boundary=Config.data.default_low_level_boundary,
+            medium_level_boundary=Config.data.default_medium_level_boundary,
             min_value=Config.data.min_value,
             max_value=Config.data.max_value,
         )
@@ -171,6 +167,8 @@ async def _update_config(request: UpdateConfigRequestModel, db: AsyncSession):
                 name=port_config.name,
                 low_level_boundary=port_config.low_level_boundary,
                 medium_level_boundary=port_config.medium_level_boundary,
+                min_value=Config.data.min_value,
+                max_value=Config.data.max_value,
             )
             db.add(db_port)
         else:

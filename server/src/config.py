@@ -10,9 +10,10 @@ class ConfigDatabase:
 
 
 class ConfigData:
-    min_value = 190
-    max_value = 470
-
+    min_value = 150
+    max_value = 600
+    default_low_level_boundary = 33
+    default_medium_level_boundary = 66
 
 class ConfigScheduler:
     check_interval_hours = 6

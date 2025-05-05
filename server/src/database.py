@@ -1,13 +1,9 @@
 import os
 from typing import AsyncGenerator
 
-from sqlalchemy import create_engine
 import urllib.parse
-from server.src import Config
-from sqlalchemy.orm import sessionmaker
 from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession
 from sqlalchemy.ext.declarative import declarative_base
-from contextlib import contextmanager
 
 db_user = os.environ.get("FLOWER_MONITORING_USER")
 db_password = os.environ.get("FLOWER_MONITORING_PASSWORD")

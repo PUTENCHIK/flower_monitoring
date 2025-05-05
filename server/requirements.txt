@@ -5,3 +5,4 @@ asyncmy
 passlib
 aiogram
 pymysql
+alembic
