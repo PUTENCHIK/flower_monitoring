@@ -12,6 +12,8 @@ class PortConfig(BaseModel):
     def boundary_must_be_positive(cls, value):
         if value < 0:
             raise ValueError("The boundary must be a positive number.")
+        if value > 100:
+            raise ValueError("The boundary must be less than 100.")
         return value
 
 

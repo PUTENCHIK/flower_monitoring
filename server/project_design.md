@@ -17,14 +17,14 @@ POST `/devices/register`
             "1": {
                 "enabled": true,
                 "name": "Кактус Дэни",
-                "low_level_boundary": 300,
-                "medium_level_boundary": 470,
+                "low_level_boundary": 30,
+                "medium_level_boundary": 60,
             },
             "2": {
                 "enabled": false,
                 "name": "Кактус Мэкси",
-                "low_level_boundary": 300,
-                "medium_level_boundary": 470,
+                "low_level_boundary": 20,
+                "medium_level_boundary": 60,
             }
         },
     }
@@ -97,14 +97,14 @@ PUT `/devices/config`
             "1": {
                 "enabled": true,
                 "name": "Кактус Дэни",
-                "low_level_boundary": 300,
-                "medium_level_boundary": 470,
+                "low_level_boundary": 30,
+                "medium_level_boundary": 60,
             },
             "2": {
                 "enabled": false,
                 "name": "Кактус Мэкси",
-                "low_level_boundary": 300,
-                "medium_level_boundary": 470,
+                "low_level_boundary": 20,
+                "medium_level_boundary": 60,
             }
         },
     }
@@ -118,26 +118,39 @@ PUT `/devices/config`
 
 ```
 devices (   
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    deviceToken TEXT NOT NULL,
-    password TEXT NOT NULL,
-    name TEXT,
-    last_activity DateTime,
-    created_at DateTime NOT NULL,
-    deleted_at DateTime
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    deviceToken = Column(String(255), nullable=False)
+    password = Column(String(255), nullable=False)
+    name = Column(String(255), nullable=True)
+    last_activity = Column(DateTime, nullable=True)
+    created_at = Column(DateTime, nullable=False, server_default=func.now())
+    deleted_at = Column(DateTime, nullable=True)
+    ports = relationship("Port", back_populates="device")
+    chat_ids = relationship("DeviceChatIDs", back_populates="device")
 )
 ```
 
 ```
 ports(
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    device_id INTEGER NOT NULL,
-    sensor_value INTEGER,
-    port_number INTEGER NOT NULL,
-    enabled BOOLEAN NOT NULL,
-    name TEXT NOT NULL,
-    low_level_boundary INTEGER,
-    medium_level_boundary INTEGER,
-    FOREIGN KEY (device_id) REFERENCES devices(id)
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    device_id = Column(Integer, ForeignKey("devices.id"), nullable=False)
+    sensor_value = Column(Integer, nullable=True)
+    port_number = Column(Integer, nullable=False)
+    enabled = Column(Boolean, nullable=False)
+    name = Column(String(255), nullable=False)
+    low_level_boundary = Column(Integer, nullable=True)
+    medium_level_boundary = Column(Integer, nullable=True)
+    min_value = Column(Integer, nullable=False)
+    max_value = Column(Integer, nullable=False)
+    device = relationship("Device", back_populates="ports")
+)
+```
+
+```
+device_chat_ids(
+    id = Column(Integer, primary_key=True)
+    device_id = Column(Integer, ForeignKey("devices.id"), nullable=True)
+    chat_id = Column(String(255), nullable=True)
+    device = relationship("Device", back_populates="chat_ids")
 )
 ```

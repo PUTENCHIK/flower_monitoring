@@ -3,6 +3,8 @@ from datetime import datetime
 from fastapi import status
 from sqlalchemy import select, and_
 from sqlalchemy.ext.asyncio import AsyncSession
+
+from server.src import Config
 from server.src.devices import RegisterRequestModel, UpdateDataRequestModel, GetRequestModel, UpdateConfigRequestModel
 from passlib.context import CryptContext
 
@@ -51,6 +53,8 @@ async def _register_device(request: RegisterRequestModel, db: AsyncSession):
             name=port_config.name,
             low_level_boundary=port_config.low_level_boundary,
             medium_level_boundary=port_config.medium_level_boundary,
+            min_value=Config.data.min_value,
+            max_value=Config.data.max_value,
         )
         db.add(db_port)
 
@@ -85,10 +89,10 @@ async def _update_data(request: UpdateDataRequestModel, db: AsyncSession):
             raise DeviceException(status_code=status.HTTP_404_NOT_FOUND, detail="Invalid port")
 
         value = port_config.value
-        if port_config.value > 600:
-            value = 600
-        elif port_config.value < 200:
-            value = 200
+        if port_config.value > port.max_value:
+            port.max_value = value
+        elif port_config.value < port.min_value:
+            port.min_value = value
 
         port.sensor_value = value
 
@@ -118,15 +122,17 @@ async def _get_data(request: GetRequestModel, db: AsyncSession):
         if not port.enabled:
             continue
 
+        percent_value = 100 - ((port.sensor_value - port.min_value) / (port.max_value - port.min_value)) * 100
+
         state = "high"
-        if port.sensor_value < port.low_level_boundary:
+        if percent_value < port.low_level_boundary:
             state = "low"
-        elif port.sensor_value < port.medium_level_boundary:
+        elif percent_value < port.medium_level_boundary:
             state = "medium"
 
         response["ports"][str(port.port_number)] = {
             "name": port.name,
-            "value": port.sensor_value,
+            "value": int(percent_value),
             "state": state
         }
 
@@ -166,7 +172,7 @@ async def _update_config(request: UpdateConfigRequestModel, db: AsyncSession):
                 low_level_boundary=port_config.low_level_boundary,
                 medium_level_boundary=port_config.medium_level_boundary,
             )
-
+            db.add(db_port)
         else:
             port.enabled = port_config.enabled
             port.name = port_config.name

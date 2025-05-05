@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, status
+from fastapi import APIRouter, Depends, status, Response
 from sqlalchemy.ext.asyncio import AsyncSession
 from starlette.responses import JSONResponse
 import logging
@@ -43,6 +43,8 @@ async def get_data(device: GetRequestModel, db: AsyncSession = Depends(get_db_se
 
         return JSONResponse(content=response, status_code=status.HTTP_200_OK)
     except DeviceException as exception:
+        if exception.status_code == status.HTTP_204_NO_CONTENT:
+            return Response(status_code=status.HTTP_204_NO_CONTENT)
         return JSONResponse(content={"message": exception.detail}, status_code=exception.status_code)
     except Exception as exception:
         logger.exception(f"Server Exception: {exception}")

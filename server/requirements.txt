@@ -1,5 +1,7 @@
 fastapi
 uvicorn[standart]
 sqlalchemy
-aiosqlite
+asyncmy
 passlib
+aiogram
+pymysql
