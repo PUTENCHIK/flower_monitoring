@@ -3,7 +3,7 @@ int currentESPMode = 0;                   // Contains current id of ESP mode: CL
 bool expectsAnswer = false;               // While microcontroller is not getting answer, it doesn't sends anything
 bool sendNextStatus = false;              // If true, microcontroller will send status message
 bool statusMessageValue;                  // Value of status message which will be send next
-unsigned long lastMessageTimer;
+unsigned long lastMessageTimer;           // Contains timestamp of last message to block other messages
 
 void sendMessage(int id, String message) {
     String m = String(id) + ":" + message;
