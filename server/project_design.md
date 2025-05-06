@@ -11,23 +11,6 @@ POST `/devices/register`
 {
     "deviceToken": "dJdq4Rl9ul",
     "password": "qwerty",
-    "config": {
-        "name": "Дача",
-        "ports": {
-            "1": {
-                "enabled": true,
-                "name": "Кактус Дэни",
-                "low_level_boundary": 30,
-                "medium_level_boundary": 60,
-            },
-            "2": {
-                "enabled": false,
-                "name": "Кактус Мэкси",
-                "low_level_boundary": 20,
-                "medium_level_boundary": 60,
-            }
-        },
-    }
 }
 ```
 
