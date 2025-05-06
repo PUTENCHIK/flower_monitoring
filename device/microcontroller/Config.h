@@ -1,7 +1,12 @@
+// --- Toggle switch ---
+#define PIN_SWITCH 4
+const int modeCLI = 0;
+const int modeAP = 1;
+
 // --- Program UART Configuration ---
-const int RX_PIN = 2; // D2 Arduino for receiving data
-const int TX_PIN = 3; // D3 Arduino for transmiting data
-SoftwareSerial esp8266(RX_PIN, TX_PIN);
+#define PIN_RX 2     // D2 Arduino for receiving data
+#define PIN_TX 3     // D3 Arduino for transmiting data
+SoftwareSerial esp8266(PIN_RX, PIN_TX);
 
 // --- IDs of data ---
 const int fieldDomen = 1;
@@ -19,7 +24,6 @@ const int idStatus = 5;
 
 // --- Length of strings ---
 const int maxMessageTextLength = 50;
-
 const int maxDomenLength = 40;
 const int maxSsidCLILength = 20;
 const int maxPasswordCLILength = 20;
