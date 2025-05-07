@@ -16,10 +16,12 @@ void sendConsoleMessage(String message) {
 }
 
 void sendNewMemoryData() {
-    String value = String(fieldDomen) + ":" + String(globalData.domen) + ";";
-    value += String(fieldSsidCLI) + ":" + String(globalData.ssidCLI) + ";";
-    value += String(fieldPasswordCLI) + ":" + String(globalData.passwordCLI) + ";";
-    value += String(fieldSsidAP) + ":" + String(globalData.ssidAP) + ";";
+    String value = stringifyMemoryValue(fieldDomen);
+    value += stringifyMemoryValue(fieldSsidCLI);
+    value += stringifyMemoryValue(fieldPasswordCLI);
+    value += stringifyMemoryValue(fieldSsidAP);
+    value += stringifyMemoryValue(fieldPassword);
+    value += stringifyMemoryValue(fieldSendingDelay);
     sendMessage(idUpdateEEPROM, value);
 }
 
@@ -30,6 +32,7 @@ void setSendStatus(bool newValue) {
 
 void processMessage(int id, String value) {
     bool result;
+//    String m;
     switch (id) {
         case idCLIMode:
         case idAPMode:
@@ -37,6 +40,9 @@ void processMessage(int id, String value) {
             result = fillGlobalDataByValue(value);
             updateESPSettings = result;
             newModeCandidate = id;
+//            if (!result) {
+//                sendConsoleMessage(m);
+//            }
             setSendStatus(result);
             break;
         case idStatus:
@@ -56,15 +62,13 @@ void parseMessage(String message) {
         value.trim();
         int keyId = key.toInt();
         if (!keyId) {
-            // Serial.print("\t[ERROR] Key ID is not integer or zero: ");
-            // Serial.println(key);
             setSendStatus(false);
+//            sendConsoleMessage("No key id in message");
         } else {
             processMessage(keyId, value);
-            // sendConsoleMessage("(" + String(keyId) + ") | (" + value + ")");
         }
     } else {
-        // Serial.println("\t[ERROR] No colon in message");
         setSendStatus(false);
+//        sendConsoleMessage("No colon in message");
     }
 }

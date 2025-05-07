@@ -12,38 +12,56 @@ void handleRoot() {
     page.replace("{{ssidCLI}}", String(globalData.ssidCLI));
     page.replace("{{passwordCLI}}", String(globalData.passwordCLI));
     page.replace("{{ssidAP}}", String(globalData.ssidAP));
+    page.replace("{{passwordAP}}", String(globalData.passwordAP));
+    page.replace("{{token}}", String(globalData.token));
+    page.replace("{{password}}", String(globalData.password));
+    page.replace("{{sendingDelay}}", String(globalData.sendingDelay));
     server.send(200, "text/html", page);
 }
 
 void handleConfig() {
-    String domen, ssidCLI, passwordCLI, ssidAP;
+    String domen, ssidCLI, passwordCLI, ssidAP, password, sendingDelay;
     bool flag = true;
-    if (server.hasArg("domen")) {
+    if (server.hasArg("domen")) {                                 // domen
         domen = server.arg("domen");
         domen.trim();
     } else {
         sendConsoleMessage("No 'domen' in POST request");
         flag = false;
     }
-    if (server.hasArg("ssidCLI")) {
+    if (server.hasArg("ssidCLI")) {                               // ssidCLI
         ssidCLI = server.arg("ssidCLI");
         ssidCLI.trim();
     } else {
         sendConsoleMessage("No 'ssidCLI' in POST request");
         flag = false;
     }
-    if (server.hasArg("passwordCLI")) {
+    if (server.hasArg("passwordCLI")) {                           // passwordCLI
         passwordCLI = server.arg("passwordCLI");
         passwordCLI.trim();
     } else {
         sendConsoleMessage("No 'passwordCLI' in POST request");
         flag = false;
     }
-    if (server.hasArg("ssidAP")) {
+    if (server.hasArg("ssidAP")) {                                // ssidAP
         ssidAP = server.arg("ssidAP");
         ssidAP.trim();
     } else {
         sendConsoleMessage("No 'ssidAP' in POST request");
+        flag = false;
+    }
+    if (server.hasArg("password")) {                              // password
+        password = server.arg("password");
+        password.trim();
+    } else {
+        sendConsoleMessage("No 'password' in POST request");
+        flag = false;
+    }
+    if (server.hasArg("sendingDelay")) {                          // sendingDelay
+        sendingDelay = server.arg("sendingDelay");
+        sendingDelay.trim();
+    } else {
+        sendConsoleMessage("No 'sendingDelay' in POST request");
         flag = false;
     }
     if (flag) {
@@ -57,11 +75,14 @@ void handleConfig() {
             updateSsidAP(ssidAP);
             updateESPSettings = true;
         }
+        if (password.length())
+            updatePassword(password);
+        if (sendingDelay.length())
+            updateSendingDelay(sendingDelay);
         sendNewMemoryData();
+        server.sendHeader("Location", "/");
+        server.send(303);
     }
-
-    server.sendHeader("Location", "/");
-    server.send(303);
 }
 
 void handleNotFound(){

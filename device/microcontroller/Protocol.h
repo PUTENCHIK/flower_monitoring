@@ -27,7 +27,7 @@ void processMessage(int id, String message) {
         case idUpdateEEPROM:
             result = fillGlobalDataByValue(message);
             if (result) {
-                updateMemoryData();
+                putMemoryData();
                 Serial.println("Updated data from ESP:");
             } else {
                 Serial.println("Data from ESP is invalid. Old data:");
@@ -57,18 +57,14 @@ void parseMessage(String message) {
         value.trim();
         int keyId = key.toInt();
         if (!keyId) {
-            Serial.print("\t[ERROR] Key ID is not integer or zero: ");
-            Serial.println(key);
-            // sendStatus(false);
+            Serial.print("\t[ERROR] Key ID is not integer or zero: " + String(key));
+            setSendStatus(false);
         } else {
-            // Serial.print("\tid: (");
-            // Serial.print(keyId);
-            // Serial.println("), value: (" + value + ")");
             processMessage(keyId, value);
         }
     } else {
         Serial.println("\t[ERROR] No colon in message");
-        // sendStatus(false);
+        setSendStatus(false);
     }
 }
 
@@ -78,16 +74,17 @@ void updateESPMode(int newMode) {
         case idCLIMode:
         case idAPMode:
             currentESPMode = newMode;
+            updateGlobalData();
             Serial.println("Switching ESP mode to " + String(newMode == idCLIMode ? "CLI" : "AP"));
             value += stringifyMemoryValue(fieldDomen);
             value += stringifyMemoryValue(fieldSsidCLI);
             value += stringifyMemoryValue(fieldPasswordCLI);
             if (newMode == idAPMode) {
                 value += stringifyMemoryValue(fieldSsidAP);
-                value += String(fieldPasswordAP);
-                value += ':';
-                value += String(passwordAP);
-                value += ";";
+                value += stringifyMemoryValue(fieldPassword);
+                value += stringifyMemoryValue(fieldSendingDelay);
+                value += stringifyMemoryValue(fieldPasswordAP);
+                value += stringifyMemoryValue(fieldToken);
             }
             break;
         default:
