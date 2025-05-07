@@ -7,10 +7,13 @@
                 <button class="form-add-device__submit" type="submit">Добавить</button>
             </form>
         </div>
-        <DeviceSection 
-            name="Дача (dKde123...)"
-            backgroundColor="#f2f3f4"
-        />
+        <div class="devices">
+            <DeviceSection v-for="(item, index) in devices"
+                :key="item.deviceToken"
+                :device="item"
+                @device-deleted="handleDeviceDeleted"/>
+        </div>
+
     </div>
 
 </template>
@@ -18,7 +21,27 @@
 <script setup lang="ts">
     import DeviceSection from './DeviceSection.vue';
     import axios from 'axios';
-    import { ref, onMounted } from 'vue';
+    import { ref, onMounted, reactive  } from 'vue';
+
+    interface Device {
+        name: string;
+        backgroundColor: string;
+        lastActivity: string;
+        deviceToken: string;
+        ports: {
+            [index: string]: {
+                "name": string,
+                "value": number,
+                "state": string
+            }
+        }
+    }
+
+    interface Port {
+        name: string;
+        value: number;
+        state: string;
+    }
 
     const addDeviceInputValue = ref("");
     const addDeviceInputClass = ref({
@@ -34,6 +57,8 @@
         "message--failed": false,
     });
 
+    const devices = reactive<Device[]>([]);
+
 
     async function addDevice(event: Event) {
         event.preventDefault();
@@ -44,12 +69,6 @@
             });
             console.log('Успешный ответ:', response.data);
 
-            messageValue.value = "Успех!"
-            messageClass.value = {
-                "message": true,
-                "message--success": true,
-                "message--failed": false,
-            };
             addDeviceInputClass.value = {
                 "form-add-device__input": true,
                 "form-add-device__input--success": true,
@@ -62,10 +81,22 @@
                 tokens = JSON.parse(checkTokens)
             }
             
+            messageClass.value = {
+                "message": true,
+                "message--success": true,
+                "message--failed": false,
+            };
+            if (tokens.includes(addDeviceInputValue.value)) {
+                messageValue.value = "Это устройство уже добавлено!"
+                return;
+            }
+
+            messageValue.value = "Успех!"
             tokens.push(addDeviceInputValue.value);
             localStorage.setItem("deviceTokens", JSON.stringify(tokens));
 
-            return response.data;
+            pushDeviceToDevices(response.data, addDeviceInputValue.value)
+
         } catch (error: any) {
             console.log('Ошибка при запросе:', error);
 
@@ -98,7 +129,7 @@
         }
     }
 
-    function addDeviceInputChange(event: Event) {
+    function addDeviceInputChange() {
         addDeviceInputClass.value = {
             "form-add-device__input": true,
             "form-add-device__input--success": false,
@@ -114,33 +145,104 @@
         messageValue.value = "";
     }
 
+    function pushDeviceToDevices(data: any, deviceToken: string) {
+        let backgroundColor = "#fff";
+        if (devices.length % 2 == 0) {
+            backgroundColor = "#EBF5FB";
+        }
+
+        let ports: { [key: string]: Port } = {};
+        for (let key in data.ports) {
+            ports[key] = {
+                "name": data.ports[key].name,
+                "value": data.ports[key].value,
+                "state": data.ports[key].state,
+            };
+        }
+
+        let device: Device = {
+            name: `${data.name} (${deviceToken.slice(0, 7)})`,
+            lastActivity: data.last_activity,
+            backgroundColor: backgroundColor,
+            deviceToken: deviceToken,
+            ports: ports
+        }
+
+        devices.push(device);
+    }
+
+    async function getDevices() {
+        let checkLocalDevices = localStorage.getItem("deviceTokens");
+        let localDevices: string[] = [];
+
+        if (checkLocalDevices !== null) {
+            localDevices = JSON.parse(checkLocalDevices);
+        }
+        else {
+            return;
+        }
+
+        localDevices.forEach(async deviceToken => {
+            try {
+                const response = await axios.post('http://localhost:5050/devices/data', {
+                    deviceToken: deviceToken
+                });
+                console.log('Успешный ответ:', response.data);
+                
+                pushDeviceToDevices(response.data, deviceToken)
+
+            } catch (error: any) {
+                console.log('Ошибка при запросе:', error);
+
+                if (error.response) {
+                    switch (error.response.status) { 
+                        case 404:
+                            console.log('Ресурс не найден:', error.response.data);
+                            break;
+                        default:
+                            console.log('Данные ошибки:', error.response.data);
+                            console.log('Код состояния:', error.response.status);
+                            console.log('Заголовки:', error.response.headers);
+                    }
+                } else if (error.request) {
+                    console.log('Запрос:', error.request);
+                } else {
+                    console.log('Ошибка:', error.message);
+                }
+            }
+            }); 
+    }
+    
+    const handleDeviceDeleted = (deviceToken: string) => {
+        let checkTokens = localStorage.getItem("deviceTokens");
+        if (checkTokens === null) {
+            return;
+        }
+        let tokens = JSON.parse(checkTokens);
+        let index = tokens.indexOf(deviceToken);
+        if (index !== -1) {
+            tokens.splice(index, 1);
+        }
+        localStorage.setItem("deviceTokens", JSON.stringify(tokens));
 
 
-    // const fetchData = async () => {
-    //     try {
-    //         const response = await axios.get('http://localhost:5050/');
-    //         data.value = response.data;
-    //     } catch (error) {
-    //         console.error('Ошибка при получении данных:', error);
-    //         // Обработайте ошибку
-    //     }
-    // };
+        index = devices.findIndex(device => device.deviceToken === deviceToken);
+        if (index !== -1) {
+            devices.splice(index, 1);
+        }
+    };
 
-    // onMounted(() => {
-    //     fetchData();
-    // });
-
-
-
-
-
+    onMounted(async () => {
+        await getDevices();
+    });
+    
 
 </script>
 
 
 <style scoped>
     .main-page {
-        background-color: #f2f3f4;
+        background-color: #EBF5FB;
     }
 
     .form-add-device__input {

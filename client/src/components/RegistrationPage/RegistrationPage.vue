@@ -2,17 +2,18 @@
     <div class="content">
         <div class="register-wrapper">
             <h1>Регистрация устройства</h1>
-            <form action="">
+            <form @submit="register">
                 <label>
                     Токен устройства:
                     <br>
-                    <input type="text" name="" id="" placeholder="Введите токен устройства">
+                    <input @change="inputChange" v-model="tokenModel" type="text" name="" id="" placeholder="Введите токен устройства">
                 </label>
                 <label>
                     Пароль устройства:
                     <br>
-                    <input type="text" name="" id="" placeholder="Введите пароль устройства">
+                    <input v-model="passwordModel" type="text" name="" id="" placeholder="Введите пароль устройства">
                 </label>
+                <span class="message"> {{ messageValue }}</span>
                 <div class="register-submit-button-wrapper">
                     <button class="register-submit-button" type="submit">Отправить</button>
                 </div>
@@ -24,7 +25,64 @@
 </template>
 
 <script setup lang="ts">
+    import axios from 'axios';
+    import { ref } from 'vue';
+    import { useRouter } from 'vue-router';
 
+    const router = useRouter()
+
+    const tokenModel = ref("");
+    const passwordModel = ref("");
+    const messageValue = ref("");
+
+    async function register(event: Event) {
+        event.preventDefault();
+        messageValue.value = "";
+
+        try {
+            const response = await axios.post('http://localhost:5050/devices/register', {
+                deviceToken: tokenModel.value,
+                password: passwordModel.value
+            });
+
+            console.log('Успешный ответ:', response.data);
+
+            let checkTokens = localStorage.getItem("deviceTokens");
+            let tokens: string[] = [];
+            if (checkTokens !== null) {
+                tokens = JSON.parse(checkTokens)
+            }
+
+            tokens.push(tokenModel.value);
+            localStorage.setItem("deviceTokens", JSON.stringify(tokens));
+            router.push('/');
+            return;
+
+        } catch (error: any) {
+            console.log('Ошибка при запросе:', error);
+
+            if (error.response) {
+                switch (error.response.status) { 
+                    case 400:
+                        console.log('Ресурс уже зарегистрирован:', error.response.data);
+                        messageValue.value = "Устройство уже зарегистрировано"
+                        break;
+                    default:
+                        console.log('Данные ошибки:', error.response.data);
+                        console.log('Код состояния:', error.response.status);
+                        console.log('Заголовки:', error.response.headers);
+                }
+            } else if (error.request) {
+                console.log('Запрос:', error.request);
+            } else {
+                console.log('Ошибка:', error.message);
+            }
+        }
+    }
+
+    function inputChange() {
+        messageValue.value = ""
+    }
 </script>
 
 
@@ -95,4 +153,14 @@
         margin-top: 24px;
         border-radius: 20px;
     }
+
+    .message {
+        font-family: "Montserrat";
+        font-size: 20px;
+        margin-bottom: 16px;
+        margin-top: 16px;
+        font-weight: 500;
+        color: #f04848;
+    }
+
 </style>

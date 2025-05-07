@@ -8,16 +8,17 @@
                 <div :class="humidityBarStyles" :style="{ width: humidityBarWidth }"></div>
             </div>
         </div>
-        <span class="card__last-update">Последнее обновление: {{ props.lastActivity }}</span>
     </div>
 
 </template>
 
 <script setup lang="ts">
-    import { ref, defineProps, computed } from 'vue';
+    import { defineProps, computed } from 'vue';
+    
     import verySadPlant from '@/assets/very_sad_plant.png';
     import sadPlant from '@/assets/sad_plant.png';
     import happyPlant from '@/assets/happy_plant.png';
+    import unknownPlant from '@/assets/unknown_plant.png';
 
     const props = defineProps({
         name: {
@@ -28,40 +29,41 @@
             type: Number,
             required: true,
         },
-        humidityStatus: {
+        humidityState: {
             type: String,
             required: true,
-            validator: (value: string) => ['low', 'medium', 'high'].includes(value),
-        },
-        lastActivity: {
-            type: String,
-            required: true,
-        },
+            validator: (value: string) => ['low', 'medium', 'high', 'unknown'].includes(value),
+        }
     });
 
     const imageSrc = computed(() => {
-        switch (props.humidityStatus) {
+        console.log(props.humidityState);
+        switch (props.humidityState) {
             case 'low':
                 return verySadPlant;
             case 'medium':
                 return sadPlant;
             case 'high':
                 return happyPlant;
+            case 'unknown':
+                return unknownPlant;
         }
     });
 
     const cardStyles = computed(() => ({
         'card': true,
-        'card--low': props.humidityStatus === 'low',
-        'card--medium': props.humidityStatus === 'medium',
-        'card--high': props.humidityStatus === 'high',
+        'card--low': props.humidityState === 'low',
+        'card--medium': props.humidityState === 'medium',
+        'card--high': props.humidityState === 'high',
+        'card--unknown': props.humidityState === 'unknown',
     }));
 
     const humidityBarStyles = computed(() => ({
         'humidity-bar__progress': true,
-        'humidity-bar__progress--low': props.humidityStatus === 'low',
-        'humidity-bar__progress--medium': props.humidityStatus === 'medium',
-        'humidity-bar__progress--high': props.humidityStatus === 'high',
+        'humidity-bar__progress--low': props.humidityState === 'low',
+        'humidity-bar__progress--medium': props.humidityState === 'medium',
+        'humidity-bar__progress--high': props.humidityState === 'high',
+        'humidity-bar__progress--unknown': props.humidityState === 'unknown',
     }));
 
     const humidityBarWidth = computed(() => {
@@ -74,7 +76,7 @@
 <style scoped>
     .card {
         width: 413px;
-        height: 540px;
+        height: 500px;
         border-radius: 38px;
         display: flex;
         flex-direction: column;
@@ -93,6 +95,10 @@
 
     .card--high {
         background-color: #629A60;
+    }
+
+    .card--unknown {
+        background-color: #566573;
     }
 
     h3 {

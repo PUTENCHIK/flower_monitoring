@@ -1,18 +1,23 @@
 <template>
-    <div class="device-section" :style="{backgroundColor: props.backgroundColor}">
+    <div class="device-section" :style="{backgroundColor: props.device.backgroundColor}">
         
         <div class="content header-content">
             <div class="title-wrapper">
-                <h2>Устройство: {{ props.name }}</h2>
-                <router-link to="/settings">
-                    <img class="settings" src="@/assets/settings.svg" alt="settings">
-                </router-link>
-                <img class="delete" src="@/assets/unseen.png" alt="delete">
+                <div class="title-wrapper__left">
+                    <h2>Устройство: {{ props.device.name }}</h2>
+                    <router-link to="/settings">
+                        <img class="settings" src="@/assets/settings.svg" alt="settings">
+                    </router-link>
+                    <img @click="deleteDevice" class="remove" src="@/assets/unseen.png" alt="delete">
+                </div>
+
+                <span class="lastActivity">{{ props.device.lastActivity }}</span>
             </div>
             <div class="cards">
-                <Card name="Cactus Danny" :humidityValue="50" humidityStatus="medium" lastActivity="23.04.2025 11:04" />
-                <Card name="Cactus Maxy" :humidityValue="80" humidityStatus="high" lastActivity="23.04.2025 11:06" />
-                <Card name="Cactus Glebby" :humidityValue="10" humidityStatus="low" lastActivity="23.04.2025 11:06" />
+                <Card v-for="item in props.device.ports"  
+                    :name="item.name"
+                    :humidityValue="item.value" 
+                    :humidityState="item.state" />
             </div>
         </div>
     </div>
@@ -21,28 +26,25 @@
 
 <script setup lang="ts">
     import Card from "./Card.vue"
-    import { defineProps } from 'vue';
+    import { defineProps, defineEmits  } from 'vue';
 
     const props = defineProps({
-        backgroundColor: {
-            type: String,
+        device: {
+            type: Object,
             required: true,
-        },
-        name: {
-            type: String,
-            required: true,
-        },
-
+        }
     });
-                
-    // });
 
+    const emit = defineEmits(['device-deleted']);  
 
+    const deleteDevice = () => {
+        emit('device-deleted', props.device.deviceToken);
+    };
 
 </script> 
 
 <style scoped>
-    .delete {
+    .remove {
         width: 32px;
         padding: 8px;
         cursor: pointer;
@@ -58,8 +60,8 @@
         display: flex;
         flex-direction: row;
         align-items: center;
-        gap: 16px;
         margin-bottom: 32px;
+        justify-content: space-between;
     }
 
     .settings {
@@ -69,7 +71,7 @@
         border-radius: 10px;
     }
 
-    .settings:hover, .delete:hover {
+    .settings:hover, .remove:hover {
         background-color: #eaeaea;
         box-shadow: 0px 5px 10px 2px rgba(34, 60, 80, 0.2);
     }
@@ -86,5 +88,19 @@
         flex-wrap: wrap;
         gap: 20px;
 
+    }
+
+    .title-wrapper__left {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        gap: 16px;
+    }
+
+    .lastActivity {
+        font-size: 20px;
+        color: #113259;
+        font-family: "Montserrat";
+        font-weight: 600;
     }
 </style>
