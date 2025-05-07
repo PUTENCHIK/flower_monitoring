@@ -2,10 +2,10 @@ from fastapi import APIRouter, Depends, status, Response
 from sqlalchemy.ext.asyncio import AsyncSession
 from starlette.responses import JSONResponse
 import logging
-from database import get_db_session
-from devices import RegisterRequestModel, UpdateDataRequestModel, _register_device, \
+from src.database import get_db_session
+from src.devices import RegisterRequestModel, UpdateDataRequestModel, _register_device, \
     _update_data, GetRequestModel, _get_data, UpdateConfigRequestModel, _update_config
-from devices.exceptions import DeviceException
+from src.devices.exceptions import DeviceException
 
 devices_router = APIRouter(prefix=f"/devices")
 logger = logging.getLogger(__name__)

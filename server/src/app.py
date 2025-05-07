@@ -1,8 +1,8 @@
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
-from devices import devices_router
-from database import create_db_and_tables
+from src.devices import devices_router
+from src.database import create_db_and_tables
 
 
 @asynccontextmanager

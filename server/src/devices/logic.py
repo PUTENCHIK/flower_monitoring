@@ -4,12 +4,12 @@ from fastapi import status
 from sqlalchemy import select, and_
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from config import Config
-from devices import RegisterRequestModel, UpdateDataRequestModel, GetRequestModel, UpdateConfigRequestModel
+from src.config import Config
+from src.devices import RegisterRequestModel, UpdateDataRequestModel, GetRequestModel, UpdateConfigRequestModel
 from passlib.context import CryptContext
 
-from devices.exceptions import DeviceException
-from devices.models import Device, Port
+from src.devices.exceptions import DeviceException
+from src.devices.models import Device, Port
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
