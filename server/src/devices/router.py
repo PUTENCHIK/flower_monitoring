@@ -3,9 +3,11 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from starlette.responses import JSONResponse
 import logging
 from src.database import get_db_session
+
 from src.devices import TokenSecuredRequestModel, UpdateDataRequestModel, _register_device, \
     _update_data, TokenRequestModel, _get_data, UpdateConfigRequestModel, _update_config, _get_config, \
         _check_password
+
 from src.devices.exceptions import DeviceException
 
 devices_router = APIRouter(prefix=f"/devices")

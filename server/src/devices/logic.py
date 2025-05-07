@@ -6,6 +6,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.config import Config
 from src.devices import TokenSecuredRequestModel, UpdateDataRequestModel, TokenRequestModel, UpdateConfigRequestModel
+
 from passlib.context import CryptContext
 
 from src.devices.exceptions import DeviceException
