@@ -2,6 +2,7 @@
 
 #include "Config.h"
 #include "Memory.h"
+#include "Display.h"
 #include "Protocol.h"
 
 int previousSwitchValue = -1;
@@ -12,6 +13,10 @@ void setup() {
 
     lastMessageTimer = millis();
     pinMode(PIN_SWITCH, INPUT);
+
+    lcd.init();
+    lcd.backlight();
+    lastLcdScrollTimer = millis();
 }
 
 void processInput(String input) {
@@ -27,6 +32,8 @@ void processInput(String input) {
 
 void loop() {
     int switchValue = digitalRead(PIN_SWITCH);
+
+    lcdUpdateText();
 
     if (esp8266.available()) {
         String message = esp8266.readStringUntil('\n');
@@ -46,7 +53,9 @@ void loop() {
             input.trim();
             processInput(input);
         } else {
-            Serial.println("[ERROR] Can't send messages while expecting answer: " + String(lastMessageDelay - (millis() - lastMessageTimer)) + " ms");
+            Serial.print("[ERROR] Can't send messages while expecting answer: ");
+            Serial.print(lastMessageDelay - (millis() - lastMessageTimer));
+            Serial.println(" ms");
         }
     }
 

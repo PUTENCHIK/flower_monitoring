@@ -8,6 +8,12 @@ const int modeAP = 1;
 #define PIN_TX 3     // D3 Arduino for transmiting data
 SoftwareSerial esp8266(PIN_RX, PIN_TX);
 
+// --- Liquid crystal display ---
+const int displayRows = 2;
+const int displayColumns = 16;
+
+const int scrollDisplayDelay = 800;     // Delay for scroll too long messages (ms)
+
 // --- IDs of data fields ---
 const int fieldDomen = 1;
 const int fieldSsidCLI = 2;
@@ -32,7 +38,7 @@ const int idStatus = 5;
 const int idData = 6;
 
 // --- Length of strings ---
-const int maxMessageTextLength = 50;
+const int maxMessageTextLength = displayRows*displayColumns;
 const int maxDomenLength = 40;
 const int maxSsidCLILength = 20;
 const int maxPasswordCLILength = 20;

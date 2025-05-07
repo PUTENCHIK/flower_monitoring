@@ -146,13 +146,21 @@ void resetMemoryData() {
 void printMemoryData() {
     Data data;
     EEPROM.get(0, data);
-    Serial.println("\tdomen: " + String(data.domen));
-    Serial.println("\tssidCLI: " + String(data.ssidCLI));
-    Serial.println("\tpasswordCLI: " + String(data.passwordCLI));
-    Serial.println("\tssidAP: " + String(data.ssidAP));
-    Serial.println("\tpassword: " + String(data.password));
-    Serial.println("\tsendingDelay: " + String(data.sendingDelay));
+    Serial.print("\tdomen: ");
+    Serial.println(data.domen);
+    Serial.print("\tssidCLI: ");
+    Serial.println(data.ssidCLI);
+    Serial.print("\tpasswordCLI: ");
+    Serial.println(data.passwordCLI);
+    Serial.print("\tssidAP: ");
+    Serial.println(data.ssidAP);
+    Serial.print("\tpassword: ");
+    Serial.println(data.password);
+    Serial.print("\tsendingDelay: ");
+    Serial.println(data.sendingDelay);
 
-    Serial.print("\t(const) token: " + String(token));
-    Serial.print("\t(const) passwordAP: " + String(passwordAP));
+    Serial.print("\t(const) token: ");
+    Serial.println(token);
+    Serial.print("\t(const) passwordAP: ");
+    Serial.println(passwordAP);
 }
