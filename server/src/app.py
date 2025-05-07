@@ -1,8 +1,9 @@
 from contextlib import asynccontextmanager
-
+from fastapi.middleware.cors import CORSMiddleware
 from fastapi import FastAPI
-from devices import devices_router
-from database import create_db_and_tables
+from src.devices import devices_router
+from src.database import create_db_and_tables
+from src.config import Config
 
 
 @asynccontextmanager
@@ -17,6 +18,8 @@ app = FastAPI(lifespan=lifespan)
 app.include_router(devices_router)
 
 
-@app.post("/test")
-async def test(data: str):
-    return {'Server received': data}
+app.add_middleware(CORSMiddleware,
+                   allow_origins=Config.app.origins,
+                   allow_credentials=True,
+                   allow_methods=["*"],
+                   allow_headers=["*"])

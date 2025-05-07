@@ -65,6 +65,52 @@ POST `/devices/data`
 }
 ```
 
+### Check password
+
+POST `/devices/password`
+
++ Request
+```
+{
+    "deviceToken": "dJdq4Rl9ul",
+    "password": "qwerty"
+}
+```
+
+
+### Get config
+
+POST `/devices/config`
+
++ Request
+```
+{
+    "deviceToken": "dJdq4Rl9ul",
+}
+```
+
++ Response
+```
+{
+    "name": "Дача",
+    "last_activity": "25.04.2025 11:03",
+    "ports": {
+        "1": {
+            "enabled": true,
+            "name": "Кактус Дэни",
+            "low_level_boundary": 30,
+            "medium_level_boundary": 60,
+        },
+        "2": {
+            "enabled": false,
+            "name": "Кактус Мэкси",
+            "low_level_boundary": 20,
+            "medium_level_boundary": 60,
+        }
+    }
+}
+```
+
 ### Update config
 
 PUT `/devices/config`

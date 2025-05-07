@@ -22,8 +22,6 @@ async def check_and_notify(bot: Bot):
 
             devices = devices.scalars().all()
 
-            print(devices)
-
             for device in devices:
                 if device.name is None:
                     message = f'Устройство "{device.deviceToken[0:6]}..." зафиксировало низкий уровень влажности ' \
@@ -39,8 +37,6 @@ async def check_and_notify(bot: Bot):
 
                 ports = await db.execute(select(Port).filter(condition))
                 ports = ports.scalars().all()
-
-                print(ports)
 
                 if len(ports) == 0:
                     continue
@@ -67,4 +63,4 @@ async def check_and_notify(bot: Bot):
 async def scheduler(bot: Bot):
     while True:
         await check_and_notify(bot)
-        await asyncio.sleep(Config.scheduler.check_interval_hours * 10)
+        await asyncio.sleep(Config.scheduler.check_interval_hours * 60 * 60)

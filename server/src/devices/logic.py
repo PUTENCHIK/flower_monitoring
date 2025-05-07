@@ -4,12 +4,12 @@ from fastapi import status
 from sqlalchemy import select, and_
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from config import Config
-from devices import RegisterRequestModel, UpdateDataRequestModel, GetRequestModel, UpdateConfigRequestModel
+from src.config import Config
+from src.devices import TokenSecuredRequestModel, UpdateDataRequestModel, TokenRequestModel, UpdateConfigRequestModel
 from passlib.context import CryptContext
 
-from devices.exceptions import DeviceException
-from devices.models import Device, Port
+from src.devices.exceptions import DeviceException
+from src.devices.models import Device, Port
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
@@ -27,7 +27,7 @@ async def get_device_by_token(device_token: str, db: AsyncSession) -> Device | N
     return result.scalar_one_or_none()
 
 
-async def _register_device(request: RegisterRequestModel, db: AsyncSession):
+async def _register_device(request: TokenSecuredRequestModel, db: AsyncSession):
     found_device = await get_device_by_token(request.deviceToken, db)
     if found_device is not None:
         raise DeviceException(status.HTTP_400_BAD_REQUEST, "The device is already registered")
@@ -46,7 +46,7 @@ async def _register_device(request: RegisterRequestModel, db: AsyncSession):
             device_id=db_device.id,
             port_number=i + 1,
             enabled=True,
-            name=f"Датчик {i+1}",
+            name=f"Датчик {i + 1}",
             low_level_boundary=Config.data.default_low_level_boundary,
             medium_level_boundary=Config.data.default_medium_level_boundary,
             min_value=Config.data.min_value,
@@ -95,7 +95,7 @@ async def _update_data(request: UpdateDataRequestModel, db: AsyncSession):
     await db.commit()
 
 
-async def _get_data(request: GetRequestModel, db: AsyncSession):
+async def _get_data(request: TokenRequestModel, db: AsyncSession):
     device = await db.execute(select(Device).filter(Device.deviceToken == request.deviceToken))
     device = device.scalars().first()
 
@@ -178,3 +178,39 @@ async def _update_config(request: UpdateConfigRequestModel, db: AsyncSession):
             port.medium_level_boundary = port_config.medium_level_boundary
 
     await db.commit()
+
+
+async def _get_config(request: TokenRequestModel, db: AsyncSession):
+    device = await db.execute(select(Device).filter(Device.deviceToken == request.deviceToken))
+    device = device.scalars().first()
+
+    if not device:
+        raise DeviceException(status_code=status.HTTP_404_NOT_FOUND, detail="Invalid deviceToken")
+
+    response = {
+        "name": device.name,
+        "ports": {}
+    }
+
+    ports = await db.execute(select(Port).filter(and_(Port.device_id == device.id)))
+    ports = ports.scalars().all()
+
+    for i, port in enumerate(ports):
+        response["ports"][str(port.port_number)] = {
+            "enabled": port.enabled,
+            "name": port.name,
+            "low_level_boundary": port.low_level_boundary,
+            "medium_level_boundary": port.medium_level_boundary
+        }
+
+    return response
+
+
+async def _check_password(request: TokenSecuredRequestModel, db: AsyncSession):
+    device = await get_device_by_token(request.deviceToken, db)
+
+    if not device:
+        raise DeviceException(status_code=status.HTTP_404_NOT_FOUND, detail="Invalid deviceToken")
+
+    if not verify_password(request.password, device.password):
+        raise DeviceException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid password")

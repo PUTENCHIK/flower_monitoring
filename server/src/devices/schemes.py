@@ -22,7 +22,7 @@ class DeviceConfig(BaseModel):
     ports: Dict[str, PortConfig]
 
 
-class RegisterRequestModel(BaseModel):
+class TokenSecuredRequestModel(BaseModel):
     deviceToken: str
     password: str
 
@@ -37,7 +37,7 @@ class UpdateDataRequestModel(BaseModel):
     ports: Dict[str, PortData]
 
 
-class GetRequestModel(BaseModel):
+class TokenRequestModel(BaseModel):
     deviceToken: str
 
 

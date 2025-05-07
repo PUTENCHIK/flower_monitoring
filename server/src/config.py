@@ -1,6 +1,17 @@
 from pathlib import Path
 
 
+class ConfigApp:
+    name = "src.app:app"
+    port = 5050
+    host = "localhost"
+    port_vue = 5173
+    origins = [
+        "http://localhost",
+        f"http://localhost:{port_vue}",
+    ]
+
+
 class ConfigPaths:
     storage = Path("storage")
 
@@ -16,10 +27,11 @@ class ConfigData:
     default_medium_level_boundary = 66
 
 class ConfigScheduler:
-    check_interval_hours = 6
+    check_interval_hours = 1
 
 
 class Config:
+    app = ConfigApp()
     paths = ConfigPaths()
     database = ConfigDatabase()
     data = ConfigData()
