@@ -4,10 +4,39 @@ struct Data {
     char ssidCLI[maxSsidCLILength + 1];               // Name of mobile / WiFi
     char passwordCLI[maxPasswordCLILength + 1];       // Password of mobile / WiFi
     char ssidAP[maxSsidAPLength + 1];                 // Name of own access point
+    char password[maxPasswordLength + 1];             // Password of device
+    int sendingDelay;                                 // Interval between sending data to server
     char passwordAP[maxPasswordAPLength + 1];         // Password of own access point (const from microcontroller)
+    char token[maxTokenLength + 1];                   // Token of device (const from microcontroller)
 };
 
 Data globalData;
+
+String stringifyMemoryValue(int id) {
+    String result = String(id) + ":";
+    switch (id) {
+        case fieldDomen:
+            result += String(globalData.domen);
+            break;
+        case fieldSsidCLI:
+            result += String(globalData.ssidCLI);
+            break;
+        case fieldPasswordCLI:
+            result += String(globalData.passwordCLI);
+            break;
+        case fieldSsidAP:
+            result += String(globalData.ssidAP);
+            break;
+        case fieldPassword:
+            result += String(globalData.password);
+            break;
+        case fieldSendingDelay:
+            result += String(globalData.sendingDelay);
+            break;
+    }
+    result += ";";
+    return result;
+}
 
 void updateDomen(String value) {
     char str[maxDomenLength + 1];
@@ -37,11 +66,32 @@ void updateSsidAP(String value) {
     globalData.ssidAP[maxSsidAPLength] = 0;
 }
 
+void updatePassword(String value) {
+    char str[maxPasswordLength + 1];
+    value.toCharArray(str, sizeof(str));
+    strncpy(globalData.password, str, maxPasswordLength);
+    globalData.password[maxPasswordLength] = 0;
+}
+
+void updateSendingDelay(String value) {
+    int v = value.toInt();
+    v = v < minSendingDelay ? minSendingDelay : v;
+    v = v > maxSendingDelay ? maxSendingDelay : v;
+    globalData.sendingDelay = v;
+}
+
 void updatePasswordAP(String value) {
     char str[maxPasswordAPLength + 1];
     value.toCharArray(str, sizeof(str));
     strncpy(globalData.passwordAP, str, maxPasswordAPLength);
     globalData.passwordAP[maxPasswordAPLength] = 0;
+}
+
+void updateToken(String value) {
+    char str[maxTokenLength + 1];
+    value.toCharArray(str, sizeof(str));
+    strncpy(globalData.token, str, maxTokenLength);
+    globalData.token[maxTokenLength] = 0;
 }
 
 bool fillGlobalDataByValue(String string) {
@@ -68,8 +118,17 @@ bool fillGlobalDataByValue(String string) {
                 case fieldSsidAP:
                     updateSsidAP(value);
                     break;
+                case fieldPassword:
+                    updatePassword(value);
+                    break;
+                case fieldSendingDelay:
+                    updateSendingDelay(value);
+                    break;
                 case fieldPasswordAP:
                     updatePasswordAP(value);
+                    break;
+                case fieldToken:
+                    updateToken(value);
                     break;
                 default:
                     return false;

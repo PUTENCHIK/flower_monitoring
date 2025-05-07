@@ -5,30 +5,46 @@ struct Data {
     char ssidCLI[maxSsidCLILength + 1];               // Name of mobile / WiFi
     char passwordCLI[maxPasswordCLILength + 1];       // Password of mobile / WiFi
     char ssidAP[maxSsidAPLength + 1];                 // Name of own access point
+    char password[maxPasswordLength + 1];             // Password of device
+    int sendingDelay;                                 // Interval between sending data to server
 };
 
 Data globalData;
 
-void updateMemoryData() {
+void putMemoryData() {
     EEPROM.put(0, globalData);
 }
 
+void updateGlobalData() {
+    EEPROM.get(0, globalData);
+}
+
 String stringifyMemoryValue(int id) {
-    Data data;
-    EEPROM.get(0, data);
     String result = String(id) + ":";
     switch (id) {
         case fieldDomen:
-            result += String(data.domen);
+            result += String(globalData.domen);
             break;
         case fieldSsidCLI:
-            result += String(data.ssidCLI);
+            result += String(globalData.ssidCLI);
             break;
         case fieldPasswordCLI:
-            result += String(data.passwordCLI);
+            result += String(globalData.passwordCLI);
             break;
         case fieldSsidAP:
-            result += String(data.ssidAP);
+            result += String(globalData.ssidAP);
+            break;
+        case fieldPassword:
+            result += String(globalData.password);
+            break;
+        case fieldSendingDelay:
+            result += String(globalData.sendingDelay);
+            break;
+        case fieldPasswordAP:
+            result += String(passwordAP);
+            break;
+        case fieldToken:
+            result += String(token);
             break;
     }
     result += ";";
@@ -63,6 +79,18 @@ void updateSsidAP(String value) {
     globalData.ssidAP[maxSsidAPLength] = 0;
 }
 
+void updatePassword(String value) {
+    char str[maxPasswordLength + 1];
+    value.toCharArray(str, sizeof(str));
+    strncpy(globalData.password, str, maxPasswordLength);
+    globalData.password[maxPasswordLength] = 0;
+}
+
+void updateSendingDelay(String value) {
+    int v = value.toInt();
+    globalData.sendingDelay = !v ? 5 : v;
+}
+
 bool fillGlobalDataByValue(String string) {
     String keyvalue, key, value;
     int scIndex = string.indexOf(';');
@@ -87,6 +115,12 @@ bool fillGlobalDataByValue(String string) {
                 case fieldSsidAP:
                     updateSsidAP(value);
                     break;
+                case fieldPassword:
+                    updatePassword(value);
+                    break;
+                case fieldSendingDelay:
+                    updateSendingDelay(value);
+                    break;
                 default:
                     return false;
             }
@@ -104,20 +138,21 @@ void resetMemoryData() {
     updateSsidCLI("-");
     updatePasswordCLI("-");
     updateSsidAP("MyESP8266");
-    updateMemoryData();
+    updatePassword("password");
+    updateSendingDelay("");
+    putMemoryData();
 }
 
 void printMemoryData() {
     Data data;
     EEPROM.get(0, data);
-    Serial.print("\tdomen: ");
-    Serial.println(data.domen);
-    Serial.print("\tssidCLI: ");
-    Serial.println(data.ssidCLI);
-    Serial.print("\tpasswordCLI: ");
-    Serial.println(data.passwordCLI);
-    Serial.print("\tssidAP: ");
-    Serial.println(data.ssidAP);
-    Serial.print("\tpasswordAP: ");
-    Serial.println(passwordAP);
+    Serial.println("\tdomen: " + String(data.domen));
+    Serial.println("\tssidCLI: " + String(data.ssidCLI));
+    Serial.println("\tpasswordCLI: " + String(data.passwordCLI));
+    Serial.println("\tssidAP: " + String(data.ssidAP));
+    Serial.println("\tpassword: " + String(data.password));
+    Serial.println("\tsendingDelay: " + String(data.sendingDelay));
+
+    Serial.print("\t(const) token: " + String(token));
+    Serial.print("\t(const) passwordAP: " + String(passwordAP));
 }
