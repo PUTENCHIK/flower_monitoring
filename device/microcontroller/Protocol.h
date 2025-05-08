@@ -1,14 +1,21 @@
+#include "HardwareSerial.h"
 #include "EEPROM.h"
 int currentESPMode = 0;                   // Contains current id of ESP mode: CLI or AP
+int lastMessageId;                        // Id of last message's id
 bool expectsAnswer = false;               // While microcontroller is not getting answer, it doesn't sends anything
 bool sendNextStatus = false;              // If true, microcontroller will send status message
 bool statusMessageValue;                  // Value of status message which will be send next
 unsigned long lastMessageTimer;           // Contains timestamp of last message to block other messages
 
-void sendMessage(int id, String message) {
-    String m = String(id) + ":" + message;
-    Serial.println("Transmit: " + m);
-    esp8266.println(m);
+void sendMessage(int id, String text) {
+    Serial.print("Transmit: ");
+    Serial.print(id);
+    Serial.print(':');
+    Serial.println(text);
+    esp8266.print(id);
+    esp8266.print(':');
+    esp8266.println(text);
+    lastMessageId = id;
 }
 
 void sendStatus(bool status) {
@@ -18,6 +25,25 @@ void sendStatus(bool status) {
 void setSendStatus(bool newValue) {
     sendNextStatus = true;
     statusMessageValue = newValue;
+}
+
+void processReceivedStatus(int status) {
+    String strStatus = status ? "success" : "fail";
+    switch (lastMessageId) {
+        case idCLIMode:
+            lcdStatus = "CLI mode";
+            updateLcdMessage(strStatus);
+            break;
+        case idAPMode:
+            lcdStatus = "AP mode";
+            updateLcdMessage(strStatus);
+            break;
+        case idData:
+            break;
+        default:
+            Serial.print("Unknown last command; status: ");
+            Serial.println(strStatus);
+    }
 }
 
 void processMessage(int id, String message) {
@@ -36,19 +62,25 @@ void processMessage(int id, String message) {
             setSendStatus(result);
             break;
         case idMessage:
-            Serial.println("Console message from ESP: " + message);
+            Serial.print("Console message from ESP: ");
+            Serial.println(message);
+            updateLcdMessage(message);
             break;
         case idStatus:
-            Serial.println("Status from ESP: " + message);
+            Serial.print("Status from ESP: ");
+            Serial.println(message);
+            processReceivedStatus(message.toInt());
             break;
         default:
-            Serial.println("\t[ERROR] Unknown message id: " + String(id));
+            Serial.print("\t[ERROR] Unknown message id: ");
+            Serial.println(id);
             expectsAnswer = true;
         }
 }
 
 void parseMessage(String message) {
-    Serial.println("Receive: " + message);
+    Serial.print("Receive: ");
+    Serial.println(message);
     int colonIndex = message.indexOf(':');
     if (colonIndex != -1) {
         String key = message.substring(0, colonIndex);
@@ -57,7 +89,8 @@ void parseMessage(String message) {
         value.trim();
         int keyId = key.toInt();
         if (!keyId) {
-            Serial.print("\t[ERROR] Key ID is not integer or zero: " + String(key));
+            Serial.print("\t[ERROR] Key ID is not integer or zero: ");
+            Serial.println(key);
             setSendStatus(false);
         } else {
             processMessage(keyId, value);
@@ -75,7 +108,9 @@ void updateESPMode(int newMode) {
         case idAPMode:
             currentESPMode = newMode;
             updateGlobalData();
-            Serial.println("Switching ESP mode to " + String(newMode == idCLIMode ? "CLI" : "AP"));
+            Serial.println("Switching ESP mode to ");
+            Serial.println(newMode == idCLIMode ? "CLI" : "AP");
+            updateLcdMessage("Switching to " + String(newMode == idCLIMode ? "CLI" : "AP"));
             value += stringifyMemoryValue(fieldDomen);
             value += stringifyMemoryValue(fieldSsidCLI);
             value += stringifyMemoryValue(fieldPasswordCLI);
@@ -88,9 +123,11 @@ void updateESPMode(int newMode) {
             }
             break;
         default:
-            Serial.println("[ERROR] Unknown mode: " + String(newMode));
+            Serial.print("[ERROR] Unknown mode: ");
+            Serial.println(newMode);
     }
-    if (value)
+    if (value) {
         sendMessage(newMode, value);
         expectsAnswer = true;
+    }
 }
