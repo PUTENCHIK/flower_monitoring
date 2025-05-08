@@ -36,7 +36,7 @@ async def _register_device(request: TokenSecuredRequestModel, db: AsyncSession):
     db_device = Device(
         deviceToken=request.deviceToken,
         password=get_password_hash(request.password),
-        name="Ваше устройство",
+        name="Без названия",
         created_at=datetime.now()
     )
     db.add(db_device)
@@ -103,12 +103,9 @@ async def _get_data(request: TokenRequestModel, db: AsyncSession):
     if not device:
         raise DeviceException(status_code=status.HTTP_404_NOT_FOUND, detail="Invalid deviceToken")
 
-    if device.last_activity is None:
-        raise DeviceException(status_code=status.HTTP_204_NO_CONTENT, detail="Data not received yet")
-
     response = {
         "name": device.name,
-        "last_activity": device.last_activity.strftime("%Y-%m-%d %H:%M"),
+        "last_activity": "Данные ещё не приходили" if device.last_activity is None else device.last_activity.strftime("%Y-%m-%d %H:%M"),
         "ports": {}
     }
 
@@ -116,22 +113,30 @@ async def _get_data(request: TokenRequestModel, db: AsyncSession):
     ports = ports.scalars().all()
 
     for i, port in enumerate(ports):
-        if not port.enabled:
-            continue
+        if port.sensor_value is not None:
+            if not port.enabled:
+                continue
 
-        percent_value = 100 - ((port.sensor_value - port.min_value) / (port.max_value - port.min_value)) * 100
+            percent_value = 100 - ((port.sensor_value - port.min_value) / (port.max_value - port.min_value)) * 100
 
-        state = "high"
-        if percent_value < port.low_level_boundary:
-            state = "low"
-        elif percent_value < port.medium_level_boundary:
-            state = "medium"
+            state = "high"
+            if percent_value < port.low_level_boundary:
+                state = "low"
+            elif percent_value < port.medium_level_boundary:
+                state = "medium"
 
-        response["ports"][str(port.port_number)] = {
-            "name": port.name,
-            "value": int(percent_value),
-            "state": state
-        }
+            response["ports"][str(port.port_number)] = {
+                "name": port.name,
+                "value": int(percent_value),
+                "state": state
+            }
+
+        else:
+            response["ports"][str(port.port_number)] = {
+                "name": port.name,
+                "value": 0,
+                "state": "unknown"
+            }
 
     return response
 
@@ -147,6 +152,7 @@ async def _update_config(request: UpdateConfigRequestModel, db: AsyncSession):
         raise DeviceException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid password")
 
     device.name = request.config.name
+    device.password = get_password_hash(request.new_password)
 
     for port_number_str, port_config in request.config.ports.items():
         try:

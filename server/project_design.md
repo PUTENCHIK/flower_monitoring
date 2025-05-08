@@ -120,6 +120,7 @@ PUT `/devices/config`
 {
     "deviceToken": "dJdq4Rl9ul",
     "password": "qwerty",
+    "new_password": "qwerty123"
     "config": {
         "name": "Дача",
         "ports": {

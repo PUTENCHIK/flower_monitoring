@@ -44,4 +44,5 @@ class TokenRequestModel(BaseModel):
 class UpdateConfigRequestModel(BaseModel):
     deviceToken: str
     password: str
+    new_password: str
     config: DeviceConfig
