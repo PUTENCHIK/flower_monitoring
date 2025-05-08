@@ -37,7 +37,6 @@
     });
 
     const imageSrc = computed(() => {
-        console.log(props.humidityState);
         switch (props.humidityState) {
             case 'low':
                 return verySadPlant;

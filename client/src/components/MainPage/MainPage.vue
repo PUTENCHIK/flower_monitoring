@@ -8,7 +8,7 @@
             </form>
         </div>
         <div class="devices">
-            <DeviceSection v-for="(item, index) in devices"
+            <DeviceSection v-for="(item) in devices"
                 :key="item.deviceToken"
                 :device="item"
                 @device-deleted="handleDeviceDeleted"/>
@@ -146,9 +146,9 @@
     }
 
     function pushDeviceToDevices(data: any, deviceToken: string) {
-        let backgroundColor = "#fff";
+        let backgroundColor = "#EBF5FB";
         if (devices.length % 2 == 0) {
-            backgroundColor = "#EBF5FB";
+            backgroundColor = "#fff";
         }
 
         let ports: { [key: string]: Port } = {};
@@ -251,7 +251,7 @@
         height: 53px;
         background-color: #ffffff;
         border-radius: 10px;
-        font-size: 18px;
+        font-size: 20px;
         border: 3px solid rgb(133, 128, 128);
         padding-left: 12px;
         padding-right: 12px;

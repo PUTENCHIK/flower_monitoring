@@ -15,9 +15,10 @@ const routes: Array<RouteRecordRaw> = [
         component: RegistrationPage
     },
     {
-        path: '/settings',
+        path: '/settings/:deviceToken',
         name: 'Settings',
-        component: SettingsPage
+        component: SettingsPage,
+        props: true
     }
 ];
 

@@ -107,7 +107,7 @@
         height: 53px;
         background-color: #ffffff;
         border-radius: 10px;
-        font-size: 18px;
+        font-size: 20px;
         border: none;
         padding-left: 12px;
         padding-right: 12px;
@@ -117,7 +117,7 @@
 
     label {
         margin: 0px;
-        /* color: #113259; */
+        color: #113259;
         font-family: "Montserrat";
         font-weight: 600;
         font-size: 22px;

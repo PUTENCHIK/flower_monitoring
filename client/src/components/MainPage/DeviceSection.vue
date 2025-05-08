@@ -1,11 +1,11 @@
 <template>
     <div class="device-section" :style="{backgroundColor: props.device.backgroundColor}">
         
-        <div class="content header-content">
+        <div v-if="props.device" class="content header-content">
             <div class="title-wrapper">
                 <div class="title-wrapper__left">
                     <h2>Устройство: {{ props.device.name }}</h2>
-                    <router-link to="/settings">
+                    <router-link :to="{ name: 'Settings', params: { deviceToken: props.device.deviceToken } }">
                         <img class="settings" src="@/assets/settings.svg" alt="settings">
                     </router-link>
                     <img @click="deleteDevice" class="remove" src="@/assets/unseen.png" alt="delete">
