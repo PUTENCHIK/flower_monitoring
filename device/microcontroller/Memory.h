@@ -6,7 +6,7 @@ struct Data {
     char passwordCLI[maxPasswordCLILength + 1];       // Password of mobile / WiFi
     char ssidAP[maxSsidAPLength + 1];                 // Name of own access point
     char password[maxPasswordLength + 1];             // Password of device
-    int sendingDelay;                                 // Interval between sending data to server
+    int sendingDelay;                                 // Interval between sending data to server (min)
 };
 
 Data globalData;
@@ -91,17 +91,16 @@ void updateSendingDelay(String value) {
     globalData.sendingDelay = !v ? 5 : v;
 }
 
-bool fillGlobalDataByValue(String string) {
-    String keyvalue, key, value;
-    int scIndex = string.indexOf(';');
+bool fillGlobalDataByValue() {
+    String keyvalue, value;
+    int scIndex = lastMessage.indexOf(';');
     int colonIndex, id;
     while (scIndex != -1) {
-        keyvalue = string.substring(0, scIndex);
+        keyvalue = lastMessage.substring(0, scIndex);
         colonIndex = keyvalue.indexOf(':');
         if (colonIndex != -1) {
-            key = keyvalue.substring(0, colonIndex);
             value = keyvalue.substring(colonIndex + 1);
-            id = key.toInt();
+            id = keyvalue.substring(0, colonIndex).toInt();
             switch (id) {
                 case fieldDomen:
                     updateDomen(value);
@@ -127,40 +126,38 @@ bool fillGlobalDataByValue(String string) {
         } else {
             return false;
         }
-        string = string.substring(scIndex + 1);
-        scIndex = string.indexOf(';');
+        lastMessage = lastMessage.substring(scIndex + 1);
+        scIndex = lastMessage.indexOf(';');
     }
     return true;
 }
 
-void resetMemoryData() {
-    updateDomen("-");
-    updateSsidCLI("-");
-    updatePasswordCLI("-");
-    updateSsidAP("MyESP8266");
-    updatePassword("password");
-    updateSendingDelay("");
-    putMemoryData();
-}
+// void resetMemoryData() {
+//     updateDomen("-");
+//     updateSsidCLI("-");
+//     updatePasswordCLI("-");
+//     updateSsidAP("MyESP8266");
+//     updatePassword("password");
+//     updateSendingDelay("");
+//     putMemoryData();
+// }
 
-void printMemoryData() {
-    Data data;
-    EEPROM.get(0, data);
-    Serial.print("\tdomen: ");
-    Serial.println(data.domen);
-    Serial.print("\tssidCLI: ");
-    Serial.println(data.ssidCLI);
-    Serial.print("\tpasswordCLI: ");
-    Serial.println(data.passwordCLI);
-    Serial.print("\tssidAP: ");
-    Serial.println(data.ssidAP);
-    Serial.print("\tpassword: ");
-    Serial.println(data.password);
-    Serial.print("\tsendingDelay: ");
-    Serial.println(data.sendingDelay);
+// void printMemoryData() {
+//     Serial.print("\tdomen: ");
+//     Serial.println(globalData.domen);
+//     Serial.print("\tssidCLI: ");
+//     Serial.println(globalData.ssidCLI);
+//     Serial.print("\tpasswordCLI: ");
+//     Serial.println(globalData.passwordCLI);
+//     Serial.print("\tssidAP: ");
+//     Serial.println(globalData.ssidAP);
+//     Serial.print("\tpassword: ");
+//     Serial.println(globalData.password);
+//     Serial.print("\tsendingDelay: ");
+//     Serial.println(globalData.sendingDelay);
 
-    Serial.print("\t(const) token: ");
-    Serial.println(token);
-    Serial.print("\t(const) passwordAP: ");
-    Serial.println(passwordAP);
-}
+//     Serial.print("\t(const) token: ");
+//     Serial.println(token);
+//     Serial.print("\t(const) passwordAP: ");
+//     Serial.println(passwordAP);
+// }

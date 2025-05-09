@@ -1,7 +1,7 @@
 #include <LiquidCrystal_I2C.h>
 
 // Adress: either 0x3f, or 0x27, 0x26
-LiquidCrystal_I2C lcd(0x3F, displayColumns, displayRows);
+LiquidCrystal_I2C lcd(0x3F, 16, 2);
 
 String lcdStatus = "Initing";
 String lcdMessage = "";
@@ -22,18 +22,18 @@ void updateLcdMessage(String newValue) {
 
 void displayMessage() {
     lcd.setCursor(0, 1);
-    if (lcdMessage.length() <= displayColumns) {
+    if (lcdMessage.length() <= 16) {
         lcd.print(lcdMessage);
     } else {
-        lcd.print(lcdMessage.substring(lcdPointer, displayColumns+lcdPointer));
+        lcd.print(lcdMessage.substring(lcdPointer, 16+lcdPointer));
         lastLcdScrollTimer = millis();
-        if (displayColumns+lcdPointer++ == lcdMessage.length())
+        if (16+lcdPointer++ == lcdMessage.length())
             lcdPointer = 0;
     }
 }
 
 void lcdUpdateText(bool lcdForceUpdate = false) {
-    if (lcdForceUpdate || isLcdMessageUpdated || (lcdMessage.length() > displayColumns && millis() >= lastLcdScrollTimer + scrollDisplayDelay)) {
+    if (lcdForceUpdate || isLcdMessageUpdated || (lcdMessage.length() > 16 && millis() >= lastLcdScrollTimer + scrollDisplayDelay)) {
         lcd.clear();
         displayStatus();
         displayMessage();

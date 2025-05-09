@@ -16,6 +16,7 @@ void sendMessage(int id, String text) {
     esp8266.print(':');
     esp8266.println(text);
     lastMessageId = id;
+    lastMessageTimer = millis();
 }
 
 void sendStatus(bool status) {
@@ -39,6 +40,7 @@ void processReceivedStatus(int status) {
             updateLcdMessage(strStatus);
             break;
         case idData:
+            updateLcdMessage("Data sended: " + strStatus);
             break;
         default:
             Serial.print("Unknown last command; status: ");
@@ -46,30 +48,31 @@ void processReceivedStatus(int status) {
     }
 }
 
-void processMessage(int id, String message) {
+void processMessage(int id) {
     expectsAnswer = false;
     bool result;
     switch (id) {
         case idUpdateEEPROM:
-            result = fillGlobalDataByValue(message);
+            result = fillGlobalDataByValue();
             if (result) {
                 putMemoryData();
-                Serial.println("Updated data from ESP:");
+                Serial.println("Data updated");
+                updateLcdMessage("Data updated");
             } else {
-                Serial.println("Data from ESP is invalid. Old data:");
+                Serial.println("Data from ESP is invalid");
+                updateLcdMessage("Data from ESP is invalid");
             }
-            printMemoryData();
             setSendStatus(result);
             break;
         case idMessage:
             Serial.print("Console message from ESP: ");
-            Serial.println(message);
-            updateLcdMessage(message);
+            Serial.println(lastMessage);
+            updateLcdMessage(lastMessage);
             break;
         case idStatus:
             Serial.print("Status from ESP: ");
-            Serial.println(message);
-            processReceivedStatus(message.toInt());
+            Serial.println(lastMessage);
+            processReceivedStatus(lastMessage.toInt());
             break;
         default:
             Serial.print("\t[ERROR] Unknown message id: ");
@@ -85,15 +88,15 @@ void parseMessage(String message) {
     if (colonIndex != -1) {
         String key = message.substring(0, colonIndex);
         key.trim();
-        String value = message.substring(colonIndex + 1);
-        value.trim();
+        lastMessage = message.substring(colonIndex + 1);
+        lastMessage.trim();
         int keyId = key.toInt();
         if (!keyId) {
             Serial.print("\t[ERROR] Key ID is not integer or zero: ");
             Serial.println(key);
             setSendStatus(false);
         } else {
-            processMessage(keyId, value);
+            processMessage(keyId);
         }
     } else {
         Serial.println("\t[ERROR] No colon in message");
@@ -108,18 +111,18 @@ void updateESPMode(int newMode) {
         case idAPMode:
             currentESPMode = newMode;
             updateGlobalData();
-            Serial.println("Switching ESP mode to ");
+            Serial.print("Switching ESP mode to ");
             Serial.println(newMode == idCLIMode ? "CLI" : "AP");
             updateLcdMessage("Switching to " + String(newMode == idCLIMode ? "CLI" : "AP"));
             value += stringifyMemoryValue(fieldDomen);
             value += stringifyMemoryValue(fieldSsidCLI);
             value += stringifyMemoryValue(fieldPasswordCLI);
+            value += stringifyMemoryValue(fieldToken);
+            value += stringifyMemoryValue(fieldPassword);
             if (newMode == idAPMode) {
                 value += stringifyMemoryValue(fieldSsidAP);
-                value += stringifyMemoryValue(fieldPassword);
                 value += stringifyMemoryValue(fieldSendingDelay);
                 value += stringifyMemoryValue(fieldPasswordAP);
-                value += stringifyMemoryValue(fieldToken);
             }
             break;
         default:

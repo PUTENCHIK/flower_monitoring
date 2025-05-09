@@ -1,3 +1,4 @@
+#include "IPAddress.h"
 #include "core_esp8266_features.h"
 
 // --- Program UART Configuration ---
@@ -10,7 +11,24 @@ IPAddress apIP(192, 168, 4, 1);
 IPAddress dnsIP(192, 168, 4, 1);
 
 // --- API server configuration ---
-const char* apiEndpoint = "/test";
+const char* apiEndpoint = "/devices/data";
+const char* apiRequestBody = R"rawliteral(
+{
+    "deviceToken": "{{token}}",
+    "password": "{{password}}",
+    "ports": {
+        "additionalProp1": {
+            "value": {{v1}}
+        },
+        "additionalProp2": {
+            "value": {{v2}}
+        },
+        "additionalProp3": {
+            "value": {{v3}}
+        }
+    }
+}
+)rawliteral";
 
 // --- IDs of data fields ---
 const int fieldDomen = 1;

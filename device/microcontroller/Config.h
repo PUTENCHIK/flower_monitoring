@@ -1,7 +1,5 @@
 // --- Toggle switch ---
 #define PIN_SWITCH 4
-const int modeCLI = 0;
-const int modeAP = 1;
 
 // --- Program UART Configuration ---
 #define PIN_RX 2     // D2 Arduino for receiving data
@@ -9,10 +7,15 @@ const int modeAP = 1;
 SoftwareSerial esp8266(PIN_RX, PIN_TX);
 
 // --- Liquid crystal display ---
-const int displayRows = 2;
-const int displayColumns = 16;
-
 const int scrollDisplayDelay = 800;     // Delay for scroll too long messages (ms)
+
+// --- Flowers data ---
+#define PIN_POT1 A1
+#define PIN_POT2 A2
+#define PIN_POT3 A3
+
+// --- Protocol variables
+String lastMessage;
 
 // --- IDs of data fields ---
 const int fieldDomen = 1;
@@ -38,16 +41,13 @@ const int idStatus = 5;
 const int idData = 6;
 
 // --- Length of strings ---
-const int maxMessageTextLength = displayRows*displayColumns;
 const int maxDomenLength = 40;
 const int maxSsidCLILength = 20;
 const int maxPasswordCLILength = 20;
 const int maxSsidAPLength = 20;
-const int maxPasswordAPLength = 20;
 const int maxPasswordLength = 20;
-const int maxTokenLength = 30;
 
 // --- Consts ---
-const char token[maxTokenLength] = "sgufuywgefygwogfygsdfg";
-const char passwordAP[maxPasswordAPLength] = "admin123";
+const char* token = "newtoken";
+const char* passwordAP = "admin123";
 const unsigned long lastMessageDelay = 15000;

@@ -21,12 +21,12 @@
 
 | Сообщение | KEY | VALUE | Отправитель | Ответчик |
 |-----------|-----|-------|-------------|----------|
-| Переключение ESP в CLI мод | 1 | 1:`{domen}`;2:`{ssidCLI}`;3:`{passwordCLI}`; | Arduino | ESP |
+| Переключение ESP в CLI мод | 1 | 1:`{domen}`;2:`{ssidCLI}`;3:`{passwordCLI}`;5:`{password}`;12:`{token}`; | Arduino | ESP |
 | Переключение ESP в AP мод | 2 | 1:`{domen}`;2:`{ssidCLI}`;3:`{passwordCLI}`;4:`{ssidAP}`;5:`{password}`;6:`{sendingDelay}`;11:`{passwordAP}`;12:`{token}`; | Arduino | ESP |
 | Обновление полей в EEPROM | 3 | 1:`{domen}`;2:`{ssidCLI}`;3:`{passwordCLI}`;4:`{ssidAP}`;5:`{password}`;6:`{sendingDelay}`; | ESP | Arduino |
 | Вывод в монитор порта | 4 | Текст сообщения | ESP | Arduino |
 | Статус получения | 5 | bool | Любой | Любой |
-| Передача данных датчиков | 6 | 12:`{token}`;5:`{password}`;101:`{value1}`;102:`{value1}`;103:`{value1}`; | Arduino | ESP |
+| Передача данных датчиков | 6 | 101:`{value1}`;102:`{value1}`;103:`{value1}`; | Arduino | ESP |
 
 ## Отображение сообщений на жидкокристаллическом дисплее
 

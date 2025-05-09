@@ -4,7 +4,7 @@ from pathlib import Path
 class ConfigApp:
     name = "src.app:app"
     port = 5050
-    host = "localhost"
+    host = "0.0.0.0"
     port_vue = 5173
     origins = [
         "http://localhost",

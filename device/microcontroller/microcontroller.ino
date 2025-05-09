@@ -4,6 +4,7 @@
 #include "Memory.h"
 #include "Display.h"
 #include "Protocol.h"
+#include "Data.h"
 
 int previousSwitchValue = -1;
 
@@ -17,23 +18,15 @@ void setup() {
     lcd.init();
     lcd.backlight();
     lastLcdScrollTimer = millis();
-}
 
-void processInput(String input) {
-    if (input == "data") {
-        Serial.println("Current data:");
-        printMemoryData();
-    } else if (input == "reset data") {
-        resetMemoryData();
-        Serial.println("Reset data:");
-        printMemoryData();
-    }
+    dataSendingTimer = millis();
+    updateGlobalData();
 }
 
 void loop() {
     int switchValue = digitalRead(PIN_SWITCH);
 
-    lcdUpdateText();
+    lcdUpdateText();    
 
     if (esp8266.available()) {
         String message = esp8266.readStringUntil('\n');
@@ -44,20 +37,11 @@ void loop() {
         sendStatus(statusMessageValue);
         sendNextStatus = false;
     } else if (!expectsAnswer && switchValue != previousSwitchValue) {
-        lastMessageTimer = millis();
-        updateESPMode(switchValue == modeCLI ? idCLIMode : idAPMode);
+        updateESPMode(switchValue == 0 ? idCLIMode : idAPMode);
         previousSwitchValue = switchValue;
-    } else if (Serial.available()) {
-        String input = Serial.readStringUntil('\n');
-        if (!expectsAnswer) {
-            input.trim();
-            processInput(input);
-        } else {
-            Serial.print("[ERROR] Can't send messages while expecting answer: ");
-            Serial.print(lastMessageDelay - (millis() - lastMessageTimer));
-            Serial.println(" ms");
-        }
     }
+
+    checkSendingData();
 
     if (expectsAnswer && millis() > lastMessageTimer + lastMessageDelay) {
         expectsAnswer = false;

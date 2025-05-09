@@ -8,6 +8,9 @@ struct Data {
     int sendingDelay;                                 // Interval between sending data to server
     char passwordAP[maxPasswordAPLength + 1];         // Password of own access point (const from microcontroller)
     char token[maxTokenLength + 1];                   // Token of device (const from microcontroller)
+    int v1;                                           // ---
+    int v2;                                           // Values of sevice's sensors
+    int v3;                                           // ---
 };
 
 Data globalData;
@@ -129,6 +132,15 @@ bool fillGlobalDataByValue(String string) {
                     break;
                 case fieldToken:
                     updateToken(value);
+                    break;
+                case sensor1:
+                    globalData.v1 = value.toInt();
+                    break;
+                case sensor2:
+                    globalData.v2 = value.toInt();
+                    break;
+                case sensor3:
+                    globalData.v3 = value.toInt();
                     break;
                 default:
                     return false;
