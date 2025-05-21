@@ -6,12 +6,12 @@
                 <label>
                     Токен устройства:
                     <br>
-                    <input @change="inputChange" v-model="tokenModel" type="text" name="" id="" placeholder="Введите токен устройства">
+                    <input minlength="4" maxlength="40" @change="inputChange" v-model="tokenModel" type="text" name="" id="" placeholder="Введите токен устройства">
                 </label>
                 <label>
                     Пароль устройства:
                     <br>
-                    <input v-model="passwordModel" type="text" name="" id="" placeholder="Введите пароль устройства">
+                    <input minlength="4" maxlength="40" v-model="passwordModel" type="text" name="" id="" placeholder="Введите пароль устройства">
                 </label>
                 <span class="message"> {{ messageValue }}</span>
                 <div class="register-submit-button-wrapper">
@@ -24,7 +24,7 @@
 
 </template>
 
-<script setup lang="ts">
+<script setup>
     import axios from 'axios';
     import { ref } from 'vue';
     import { useRouter } from 'vue-router';
@@ -35,7 +35,7 @@
     const passwordModel = ref("");
     const messageValue = ref("");
 
-    async function register(event: Event) {
+    async function register(event) {
         event.preventDefault();
         messageValue.value = "";
 
@@ -48,7 +48,7 @@
             console.log('Успешный ответ:', response.data);
 
             let checkTokens = localStorage.getItem("deviceTokens");
-            let tokens: string[] = [];
+            let tokens = [];
             if (checkTokens !== null) {
                 tokens = JSON.parse(checkTokens)
             }
@@ -58,7 +58,7 @@
             router.push('/');
             return;
 
-        } catch (error: any) {
+        } catch (error) {
             console.log('Ошибка при запросе:', error);
 
             if (error.response) {

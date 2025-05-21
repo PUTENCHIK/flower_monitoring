@@ -1,9 +1,9 @@
-import { createRouter, createWebHistory, type RouteRecordRaw } from 'vue-router';
+import { createRouter, createWebHistory } from 'vue-router';
 import MainPage from '../components/MainPage/MainPage.vue';
 import RegistrationPage from '../components/RegistrationPage/RegistrationPage.vue';
 import SettingsPage from '../components/SettingsPage/SettingsPage.vue';
 
-const routes: Array<RouteRecordRaw> = [
+const routes = [
     {
         path: '/',
         name: 'Home',

@@ -1,11 +1,11 @@
 {
-  "name": "client",
-  "private": true,
+  "name": "flower_monitoring",
   "version": "0.0.0",
+  "private": true,
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "vue-tsc -b && vite build",
+    "build": "vite build",
     "preview": "vite preview"
   },
   "dependencies": {
@@ -14,11 +14,8 @@
     "vue-router": "^4.5.1"
   },
   "devDependencies": {
-    "@types/node": "^22.15.3",
-    "@vitejs/plugin-vue": "^5.2.2",
-    "@vue/tsconfig": "^0.7.0",
-    "typescript": "~5.7.2",
-    "vite": "^6.3.1",
-    "vue-tsc": "^2.2.8"
+    "@vitejs/plugin-vue": "^5.2.3",
+    "vite": "^6.2.4",
+    "vite-plugin-vue-devtools": "^7.7.2"
   }
 }

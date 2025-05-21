@@ -12,7 +12,7 @@
 
 </template>
 
-<script setup lang="ts">
+<script setup>
     import { defineProps, computed } from 'vue';
     
     import verySadPlant from '@/assets/very_sad_plant.png';
@@ -32,7 +32,7 @@
         humidityState: {
             type: String,
             required: true,
-            validator: (value: string) => ['low', 'medium', 'high', 'unknown'].includes(value),
+            validator: (value) => ['low', 'medium', 'high', 'unknown'].includes(value),
         }
     });
 

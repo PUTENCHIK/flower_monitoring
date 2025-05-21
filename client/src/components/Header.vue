@@ -8,10 +8,6 @@
                 </div>
             </router-link>  
 
-            <!-- <form @submit="addDevice" class="form-add-device">
-                <input @change="addDeviceInputChange" :style="addDeviceInput" v-model="addDeviceToken" class="form-add-device__input" type="search" name="" id="" placeholder="Токен устройства...">
-                <button class="form-add-device__submit" type="submit">Добавить</button>
-            </form> -->
             <router-link to="/register">
                 <button class="button-register" type="button">Зарегистрировать</button>
             </router-link>
@@ -21,7 +17,7 @@
 
 </template>
 
-<script setup lang="ts">
+<script setup >
     
 </script>
 

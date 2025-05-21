@@ -3,7 +3,7 @@
         <div class="content ">
             <form @submit="addDevice" class="form-add-device">
                 <span :class="messageClass" >{{ messageValue }}</span>
-                <input @change="addDeviceInputChange" :class="addDeviceInputClass" v-model="addDeviceInputValue" type="search" name="" id="" placeholder="Токен устройства...">
+                <input minlength="4" maxlength="40" @change="addDeviceInputChange" :class="addDeviceInputClass" v-model="addDeviceInputValue" type="search" name="" id="" placeholder="Токен устройства...">
                 <button class="form-add-device__submit" type="submit">Добавить</button>
             </form>
         </div>
@@ -18,30 +18,10 @@
 
 </template>
 
-<script setup lang="ts">
+<script setup>
     import DeviceSection from './DeviceSection.vue';
     import axios from 'axios';
     import { ref, onMounted, reactive  } from 'vue';
-
-    interface Device {
-        name: string;
-        backgroundColor: string;
-        lastActivity: string;
-        deviceToken: string;
-        ports: {
-            [index: string]: {
-                "name": string,
-                "value": number,
-                "state": string
-            }
-        }
-    }
-
-    interface Port {
-        name: string;
-        value: number;
-        state: string;
-    }
 
     const addDeviceInputValue = ref("");
     const addDeviceInputClass = ref({
@@ -57,11 +37,26 @@
         "message--failed": false,
     });
 
-    const devices = reactive<Device[]>([]);
+    const devices = reactive([]);
 
 
-    async function addDevice(event: Event) {
+    async function addDevice(event) {
         event.preventDefault();
+
+        if (addDeviceInputValue.value.trim() < 5) {
+            messageValue.value = "Длина токена устройства должна быть не менее 4 символов!";
+            messageClass.value = {
+                "message": true,
+                "message--success": false,
+                "message--failed": true,
+            };
+            addDeviceInputClass.value = {
+                "form-add-device__input": true,
+                "form-add-device__input--success": false,
+                "form-add-device__input--failed": true,
+            };
+            return;
+        }
 
         try {
             const response = await axios.post('http://localhost:5050/devices/data', {
@@ -76,7 +71,7 @@
             };
 
             let checkTokens = localStorage.getItem("deviceTokens");
-            let tokens: string[] = [];
+            let tokens = [];
             if (checkTokens !== null) {
                 tokens = JSON.parse(checkTokens)
             }
@@ -97,7 +92,7 @@
 
             pushDeviceToDevices(response.data, addDeviceInputValue.value)
 
-        } catch (error: any) {
+        } catch (error) {
             console.log('Ошибка при запросе:', error);
 
             if (error.response) {
@@ -145,13 +140,13 @@
         messageValue.value = "";
     }
 
-    function pushDeviceToDevices(data: any, deviceToken: string) {
+    function pushDeviceToDevices(data, deviceToken) {
         let backgroundColor = "#EBF5FB";
         if (devices.length % 2 == 0) {
             backgroundColor = "#fff";
         }
 
-        let ports: { [key: string]: Port } = {};
+        let ports = {};
         for (let key in data.ports) {
             ports[key] = {
                 "name": data.ports[key].name,
@@ -160,8 +155,8 @@
             };
         }
 
-        let device: Device = {
-            name: `${data.name} (${deviceToken.slice(0, 7)})`,
+        let device = {
+            name: `${data.name} (${deviceToken.slice(0, 7)}...)`,
             lastActivity: data.last_activity,
             backgroundColor: backgroundColor,
             deviceToken: deviceToken,
@@ -173,7 +168,7 @@
 
     async function getDevices() {
         let checkLocalDevices = localStorage.getItem("deviceTokens");
-        let localDevices: string[] = [];
+        let localDevices = [];
 
         if (checkLocalDevices !== null) {
             localDevices = JSON.parse(checkLocalDevices);
@@ -191,7 +186,7 @@
                 
                 pushDeviceToDevices(response.data, deviceToken)
 
-            } catch (error: any) {
+            } catch (error) {
                 console.log('Ошибка при запросе:', error);
 
                 if (error.response) {
@@ -213,7 +208,7 @@
             }); 
     }
     
-    const handleDeviceDeleted = (deviceToken: string) => {
+    const handleDeviceDeleted = (deviceToken) => {
         let checkTokens = localStorage.getItem("deviceTokens");
         if (checkTokens === null) {
             return;

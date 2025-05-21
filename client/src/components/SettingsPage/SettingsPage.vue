@@ -7,7 +7,7 @@
                     <label>
                         Имя устройства:
                         <br>
-                        <input v-model="deviceNameModel" type="text" name="" placeholder="Введите имя устройства">
+                        <input minlength="4" maxlength="40" v-model="deviceNameModel" type="text" name="" placeholder="Введите имя устройства">
                     </label>
                     <label>
                         Сменить пароль: 
@@ -18,15 +18,15 @@
                         <label>
                             Новый пароль: 
                             <br>
-                            <input required v-model="newPasswordModel" type="password" name="" placeholder="Введите новый пароль устройства">
+                            <input minlength="4" required v-model="newPasswordModel" type="password" name="" placeholder="Введите новый пароль устройства">
                         </label>
                         <label>
                             Повторно введите новый пароль: 
                             <br>
-                            <input required v-model="newPasswordAgainModel" type="password" name="" placeholder="Введите новый пароль устройства">
+                            <input minlength="4" required v-model="newPasswordAgainModel" type="password" name="" placeholder="Введите новый пароль устройства">
                         </label>
                     </div>
-                    
+                    <span v-if="messageValueMain" class="message"> {{ messageValueMain }}</span>
                 </div>
 
                 <fieldset v-for="(sensor, index) in sensors" :key="index" class="config-block">
@@ -34,7 +34,7 @@
                     <label>
                         Имя датчика:
                         <br>
-                        <input v-model="sensor.name" type="text" placeholder="Введите имя датчика">
+                        <input minlength="4" maxlength="40" v-model="sensor.name" type="text" placeholder="Введите имя датчика">
                     </label>
                     <label class="checkbox_label">
                         Отслеживать:
@@ -50,6 +50,8 @@
                         <br>
                         <input min="1" max="100" v-model="sensor.medium_level_boundary" type="number" placeholder="Введите приемлемый порог">
                     </label>
+
+                    <span v-if="messageValueSensors[index]" class="message"> {{ messageValueSensors[index] }}</span>
                 </fieldset>
 
                 <label>
@@ -58,7 +60,7 @@
                     <input required v-model="passwordModel" type="password" name="" placeholder="Введите пароль устройства">
                 </label>
 
-                <span class="message"> {{ messageValue }}</span>
+                <span v-if="messageValueLast" class="message"> {{ messageValueLast }}</span>
                 <div class="settings-submit-button-wrapper">
                     <button class="settings-submit-button" type="submit">Отправить</button>
                 </div>
@@ -68,20 +70,13 @@
     </div>
 </template>
 
-<script setup lang="ts">
+<script setup>
     import axios from 'axios';
     import { reactive, ref, onMounted } from 'vue';
     import { useRouter } from 'vue-router';
     
 
     const router = useRouter()
-
-    interface Port {
-        name: string,
-        low_level_boundary: number,
-        medium_level_boundary: number,
-        enabled: boolean,
-    }
 
     const props = defineProps({
         deviceToken: {
@@ -96,15 +91,23 @@
     const newPasswordAgainModel = ref("");
     const changePasswordModel = ref(false);
 
-    const sensors = reactive<{ [index: string]: Port}>({});
-    const messageValue = ref("");
+    const sensors = reactive({});
+    const messageValueMain = ref("");
+    const messageValueLast = ref("");
+    const messageValueSensors = reactive([]);
 
-
-    async function changeConfig(event: Event) {
+    async function changeConfig(event) {
+        let wasError = false;
         event.preventDefault();
 
         if (changePasswordModel.value && newPasswordModel.value != newPasswordAgainModel.value) {
-            messageValue.value = "Введен неверный повторный пароль!"
+            messageValueMain.value = "Введен неверный повторный пароль!"
+            wasError = true;
+        }
+
+        if (deviceNameModel.value.trim().length < 4) {
+            messageValueMain.value = "Длина имени устройства должна быть не менее 4 символов!"
+            wasError = true;
         }
 
         let newPassword = newPasswordModel.value;
@@ -112,8 +115,13 @@
             newPassword = passwordModel.value;
         }
 
-        let ports: { [index: string]: Port } = {};
+        let ports = {};
         for (let key in sensors) {
+            if (sensors[key].name.trim().length < 4) {
+                messageValueSensors[key] = "Длина имени устройства должна быть не менее 4 символов!"
+                wasError = true;
+            }
+
             ports[key] = {
                 "enabled": sensors[key].enabled,
                 "name": sensors[key].name === "" ? `Датчик ${key}` : sensors[key].name,
@@ -121,6 +129,10 @@
                 "medium_level_boundary": sensors[key].medium_level_boundary,
             };
         }
+
+        if (wasError == true) {
+            return;
+        } 
 
         try {
             await axios.put('http://localhost:5050/devices/config', {
@@ -135,18 +147,18 @@
             
             router.push('/');
 
-        } catch (error: any) {
+        } catch (error) {
             console.log('Ошибка при запросе:', error);
 
             if (error.response) {
                 switch (error.response.status) { 
                     case 404:
                         console.log('Ресурс не найден:', error.response.data);
-                        messageValue.value = "Устройство не найдено"
+                        messageValueLast.value = "Устройство не найдено"
                         break;
                     case 401:
                         console.log('Неверный пароль:', error.response.data);
-                        messageValue.value = "Неверный пароль"
+                        messageValueLast.value = "Неверный пароль"
                         break;
                     default:
                         console.log('Данные ошибки:', error.response.data);
@@ -171,6 +183,7 @@
             deviceNameModel.value = response.data.name;
 
             for (let key in response.data.ports) {
+                messageValueSensors.push("");
                 sensors[key] = ({
                     name: response.data.ports[key].name,
                     low_level_boundary: response.data.ports[key].low_level_boundary,
@@ -179,7 +192,7 @@
                 });
             }
 
-        } catch (error: any) {
+        } catch (error) {
             console.log('Ошибка при запросе:', error);
 
             if (error.response) {

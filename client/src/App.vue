@@ -3,7 +3,7 @@
     <router-view/>
   </template>
 
-<script setup lang="ts">
+<script setup>
 	import Header from './components/Header.vue'
 </script>
 

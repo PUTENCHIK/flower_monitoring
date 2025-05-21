@@ -6,12 +6,12 @@
                 <div class="title-wrapper__left">
                     <h2>Устройство: {{ props.device.name }}</h2>
                     <router-link :to="{ name: 'Settings', params: { deviceToken: props.device.deviceToken } }">
-                        <img class="settings" src="@/assets/settings.svg" alt="settings">
+                        <img class="settings" src="@/assets/settings.svg" alt="settings" title="Настройки">
                     </router-link>
-                    <img @click="deleteDevice" class="remove" src="@/assets/unseen.png" alt="delete">
+                    <img @click="deleteDevice" class="remove" src="@/assets/unseen.png" title="Убрать из списка" alt="remove">
                 </div>
 
-                <span class="lastActivity">{{ props.device.lastActivity }}</span>
+                <span class="lastActivity"> {{ props.device.lastActivity == "Данные ещё не приходили" ? props.device.lastActivity : `Обновлено: ${props.device.lastActivity}` }}</span>
             </div>
             <div class="cards">
                 <Card v-for="item in props.device.ports"  
@@ -24,9 +24,9 @@
 
 </template>
 
-<script setup lang="ts">
+<script setup>
     import Card from "./Card.vue"
-    import { defineProps, defineEmits  } from 'vue';
+    import { defineProps, defineEmits, onMounted } from 'vue';
 
     const props = defineProps({
         device: {
@@ -35,11 +35,17 @@
         }
     });
 
+    
+
     const emit = defineEmits(['device-deleted']);  
 
     const deleteDevice = () => {
         emit('device-deleted', props.device.deviceToken);
     };
+
+    onMounted(() => {
+        console.log(props.device);
+    });
 
 </script> 
 

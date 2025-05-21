@@ -116,7 +116,6 @@ async def _get_data(request: TokenRequestModel, db: AsyncSession):
         if port.sensor_value is not None:
             if not port.enabled:
                 continue
-
             percent_value = 100 - ((port.sensor_value - port.min_value) / (port.max_value - port.min_value)) * 100
 
             state = "high"
