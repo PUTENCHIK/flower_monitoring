@@ -1,6 +1,10 @@
 // --- Toggle switch ---
 #define PIN_SWITCH 4
 
+// --- Liquid Crystal Config ---
+// SDA - A4
+// SCL - A5
+
 // --- Program UART Configuration ---
 #define PIN_RX 2     // D2 Arduino for receiving data
 #define PIN_TX 3     // D3 Arduino for transmiting data
