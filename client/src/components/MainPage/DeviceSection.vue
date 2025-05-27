@@ -9,6 +9,7 @@
                         <img class="settings" src="@/assets/settings.svg" alt="settings" title="Настройки">
                     </router-link>
                     <img @click="deleteDevice" class="remove" src="@/assets/unseen.png" title="Убрать из списка" alt="remove">
+                    <img @click="updateDevice" class="update" src="@/assets/refresh.png" title="Обновить" alt="update">
                 </div>
 
                 <span class="lastActivity"> {{ props.device.lastActivity == "Данные ещё не приходили" ? props.device.lastActivity : `Обновлено: ${props.device.lastActivity}` }}</span>
@@ -36,11 +37,14 @@
     });
 
     
-
-    const emit = defineEmits(['device-deleted']);  
+    const emit = defineEmits(['device-deleted', 'device-updated']);  
 
     const deleteDevice = () => {
         emit('device-deleted', props.device.deviceToken);
+    };
+
+    const updateDevice = () => {
+        emit('device-updated', props.device.deviceToken);
     };
 
     onMounted(() => {
@@ -77,7 +81,7 @@
         border-radius: 10px;
     }
 
-    .settings:hover, .remove:hover {
+    .settings:hover, .remove:hover, .update:hover {
         background-color: #eaeaea;
         box-shadow: 0px 5px 10px 2px rgba(34, 60, 80, 0.2);
     }
@@ -108,5 +112,13 @@
         color: #113259;
         font-family: "Montserrat";
         font-weight: 600;
+    }
+
+    .update {
+        width: 34px;
+        height: 34px;
+        padding: 8px;
+        cursor: pointer;
+        border-radius: 10px;
     }
 </style>

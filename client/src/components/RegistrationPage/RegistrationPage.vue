@@ -1,7 +1,12 @@
 <template>
     <div class="content">
         <div class="register-wrapper">
-            <h1>Регистрация устройства</h1>
+            <div>
+                <router-link to="/">
+                    <img class="back" src="@/assets/arrow.png" alt="">
+                </router-link>  
+                <h1>Регистрация устройства</h1>
+            </div>
             <form @submit="register">
                 <label>
                     Токен устройства:
@@ -11,7 +16,7 @@
                 <label>
                     Пароль устройства:
                     <br>
-                    <input minlength="4" maxlength="40" v-model="passwordModel" type="text" name="" id="" placeholder="Введите пароль устройства">
+                    <input minlength="4" maxlength="40" v-model="passwordModel" type="password" name="" id="" placeholder="Введите пароль устройства">
                 </label>
                 <span class="message"> {{ messageValue }}</span>
                 <div class="register-submit-button-wrapper">
@@ -163,4 +168,15 @@
         color: #f04848;
     }
 
+    .back {
+        width: 32px;
+        padding: 8px;
+        cursor: pointer;
+        border-radius: 10px;
+    }
+
+    .back:hover {
+        background-color: #eaeaea;
+        box-shadow: 0px 5px 10px 2px rgba(34, 60, 80, 0.2);
+    }
 </style>

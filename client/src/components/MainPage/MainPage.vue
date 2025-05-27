@@ -11,9 +11,12 @@
             <DeviceSection v-for="(item) in devices"
                 :key="item.deviceToken"
                 :device="item"
-                @device-deleted="handleDeviceDeleted"/>
+                @device-deleted="handleDeviceDeleted"
+                @device-updated="handleDeviceUpdated"/>
         </div>
-
+        <div class="nodevices-block">
+            <span class="nodevices" v-if="devices.length === 0">Пока ни одно устройство не отслеживается!</span>
+        </div>
     </div>
 
 </template>
@@ -177,14 +180,14 @@
             return;
         }
 
-        localDevices.forEach(async deviceToken => {
+        for (let i = 0; i < localDevices.length; i++) {
             try {
                 const response = await axios.post('http://localhost:5050/devices/data', {
-                    deviceToken: deviceToken
+                    deviceToken: localDevices[i]
                 });
                 console.log('Успешный ответ:', response.data);
                 
-                pushDeviceToDevices(response.data, deviceToken)
+                pushDeviceToDevices(response.data, localDevices[i])
 
             } catch (error) {
                 console.log('Ошибка при запросе:', error);
@@ -205,7 +208,7 @@
                     console.log('Ошибка:', error.message);
                 }
             }
-            }); 
+        }
     }
     
     const handleDeviceDeleted = (deviceToken) => {
@@ -227,9 +230,80 @@
         }
     };
 
+    const handleDeviceUpdated = async (deviceToken) => {
+        let checkLocalDevices = localStorage.getItem("deviceTokens");
+        let localDevices = [];
+
+        if (checkLocalDevices !== null) {
+            localDevices = JSON.parse(checkLocalDevices);
+        }
+        else {
+            return;
+        }
+
+        try {
+            const response = await axios.post('http://localhost:5050/devices/data', {
+                deviceToken: deviceToken
+            });
+            console.log('Успешный ответ:', response.data);
+            
+            let index = localDevices.indexOf(deviceToken);
+
+            let backgroundColor = "#EBF5FB";
+            if (index % 2 == 0) {
+                backgroundColor = "#fff";
+            }
+
+            let ports = {};
+            for (let key in response.data.ports) {
+                ports[key] = {
+                    "name": response.data.ports[key].name,
+                    "value": response.data.ports[key].value,
+                    "state": response.data.ports[key].state,
+                };
+            }
+
+            let device = {
+                name: `${response.data.name} (${deviceToken.slice(0, 7)}...)`,
+                lastActivity: response.data.last_activity,
+                backgroundColor: backgroundColor,
+                deviceToken: deviceToken,
+                ports: ports
+            }
+
+            
+
+            if (index === -1) {
+                return;
+            }
+
+            devices[index] = device;
+
+        } catch (error) {
+            console.log('Ошибка при запросе:', error);
+
+            if (error.response) {
+                switch (error.response.status) { 
+                    case 404:
+                        console.log('Ресурс не найден:', error.response.data);
+                        break;
+                    default:
+                        console.log('Данные ошибки:', error.response.data);
+                        console.log('Код состояния:', error.response.status);
+                        console.log('Заголовки:', error.response.headers);
+                }
+            } else if (error.request) {
+                console.log('Запрос:', error.request);
+            } else {
+                console.log('Ошибка:', error.message);
+            }
+        }
+    }
+
     onMounted(async () => {
         await getDevices();
     });
+    
     
 
 </script>
@@ -298,5 +372,19 @@
 
     .message--success {
         color: #86e363;
+    }
+
+    .nodevices {
+        font-family: "Montserrat";
+        font-size: 24px;
+        font-weight: 500;
+    }
+
+    .nodevices-block {
+        display: flex;
+        justify-content: center;
+        background-color:#ffffff;
+        padding-top: 32px;
+
     }
 </style>
