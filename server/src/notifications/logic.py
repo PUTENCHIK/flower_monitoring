@@ -1,8 +1,7 @@
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
-
-from devices.models import Device, DeviceChatIDs
-from notifications.exceptions import BotDeviceException
+from src.devices.models import Device, DeviceChatIDs
+from src.notifications.exceptions import BotDeviceException
 
 
 async def _add_chat_id_to_device(deviceToken: str, chat_id: int, db: AsyncSession):

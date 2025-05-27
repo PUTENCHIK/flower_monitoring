@@ -5,9 +5,9 @@ from aiogram import Bot
 from sqlalchemy import select, func, and_
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from config import Config
-from database import engine
-from devices.models import Device, DeviceChatIDs, Port
+from src.config import Config
+from src.database import engine
+from src.devices.models import Device, DeviceChatIDs, Port
 logger = logging.getLogger(__name__)
 
 
@@ -27,7 +27,7 @@ async def check_and_notify(bot: Bot):
                     message = f'Устройство "{device.deviceToken[0:6]}..." зафиксировало низкий уровень влажности ' \
                               f'почвы в следующих горшках:\n\n'
                 else:
-                    message = f'Устройство "{device.name}" ({device.deviceToken[0:6]}) зафиксировало низкий уровень ' \
+                    message = f'Устройство "{device.name}" ({device.deviceToken[0:6]}...) зафиксировало низкий уровень ' \
                               f'влажности почвы в следующих горшках:\n\n'
 
                 condition = and_(Port.device_id == device.id,
@@ -63,4 +63,4 @@ async def check_and_notify(bot: Bot):
 async def scheduler(bot: Bot):
     while True:
         await check_and_notify(bot)
-        await asyncio.sleep(Config.scheduler.check_interval_hours * 60 * 60)
+        await asyncio.sleep(Config.scheduler.check_interval_hours * 60)

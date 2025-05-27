@@ -5,10 +5,10 @@ from aiogram.filters import CommandStart, Command
 from aiogram.types import Message, ReplyKeyboardRemove
 from sqlalchemy.ext.asyncio import AsyncSession
 import logging
+from src.utils.scheduler import scheduler
 from src.database import engine
-from notifications import _add_chat_id_to_device
-from notifications.exceptions import BotDeviceException
-from src.utils import scheduler
+from src.notifications import _add_chat_id_to_device
+from src.notifications.exceptions import BotDeviceException
 
 logger = logging.getLogger(__name__)
 
@@ -32,7 +32,7 @@ async def handle_start(message: Message):
 
 Доступные команды:
 - /start - показать это сообщение
-- /link [идентификатор устройства] - привязать телеграмм аккаунт к устройству FlowerMonitoring для получения уведомлений
+- /link [токен устройства] - привязать телеграмм аккаунт к устройству FlowerMonitoring для получения уведомлений
     """
     markup = ReplyKeyboardRemove()
     await message.answer(instruction, reply_markup=markup)
@@ -51,7 +51,7 @@ async def link_command(message: Message):
         async with AsyncSession(engine) as db:
             try:
                 await _add_chat_id_to_device(device_token, message.chat.id, db)
-                await message.reply(f"Устройство {device_token} успешно привязано к чату.")
+                await message.reply(f"Чат успешно привязан к устройству {device_token}.")
             except BotDeviceException as exception:
                 await message.reply(exception.detail)
                 return
@@ -72,7 +72,6 @@ async def main():
     except KeyboardInterrupt:
         print("Bot stopped")
     finally:
-        # Graceful shutdown
         await bot.session.close()
 
 
