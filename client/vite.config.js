@@ -4,7 +4,6 @@ import { defineConfig } from 'vite'
 import vue from '@vitejs/plugin-vue'
 import vueDevTools from 'vite-plugin-vue-devtools'
 
-// https://vite.dev/config/
 export default defineConfig({
   base: '/',
   plugins: [
@@ -12,7 +11,8 @@ export default defineConfig({
     vueDevTools(),
   ],
   server: {
-    host: true
+    host: true,
+    allowedHosts: ['flowermonitoring.up.railway.app']
   },
   resolve: {
     alias: {
