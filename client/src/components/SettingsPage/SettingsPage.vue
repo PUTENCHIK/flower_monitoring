@@ -7,7 +7,7 @@
                     <label>
                         Имя устройства:
                         <br>
-                        <input minlength="4" maxlength="40" v-model="deviceNameModel" type="text" name="" placeholder="Введите имя устройства">
+                        <input maxlength="40" v-model="deviceNameModel" type="text" name="" placeholder="Введите имя устройства">
                     </label>
                     <label>
                         Сменить пароль: 
@@ -334,5 +334,75 @@
         display: flex;
         flex-direction: row;
         gap: 24px;
+    }
+
+    @media (max-width: 576px) {
+        h1 {
+            margin-bottom: 32px;
+            font-size: 18px;
+        }
+
+        form {
+            gap: 24px;
+        }
+
+        input[type="text"], input[type="number"], input[type="password"] {
+            width: 90%;
+            height: 28px;
+            font-size: 14px;
+            padding-left: 12px;
+            padding-right: 12px;
+            margin-right: 16px;   
+            border-radius: 6px;
+        }
+        
+
+        input[type="checkbox"] {
+            width: 25px;
+            height: 25px;
+        }
+
+        label {
+            margin: 0px;
+            font-size: 14px;
+            gap: 10px;
+        }
+
+        .settings-submit-button {
+            width: 100px;
+            height: 33px;
+            font-size: 14px;
+            border-radius: 8px;
+        }
+
+
+        .settings-wrapper {
+            padding: 20px;
+            margin-top: 16px;
+            border-radius: 20px;
+            margin-bottom: 48px;
+        }
+
+        .message {
+            font-size: 14px;
+            margin-bottom: 6px;
+            margin-top: 6px;
+        }
+
+        .config-block {
+            padding: 24px;
+            gap: 24px;
+            row-gap: 18px;
+        }
+
+        .config-block legend {
+            font-size: 16px;
+        }
+
+        .new-password-block {
+            gap: 24px;
+            flex-direction: column;
+        }
+
     }
 </style>

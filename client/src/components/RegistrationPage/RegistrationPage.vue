@@ -179,4 +179,93 @@
         background-color: #eaeaea;
         box-shadow: 0px 5px 10px 2px rgba(34, 60, 80, 0.2);
     }
+
+    @media (max-width: 576px) {
+        .back {
+            width: 20px;
+            padding: 4px;
+            cursor: pointer;
+            border-radius: 10px;
+            display: none;
+        }
+
+
+        h1 {
+            font-family: "Montserrat";
+            color: #113259;
+            margin-bottom: 32px;
+            text-align: center;
+            font-size: 18px;
+        }
+
+
+        form {
+            display: flex;
+            flex-direction: column;
+            gap: 32px;
+        }
+
+        input {
+            font-family: "Montserrat";
+            width: 243px;
+            height: 43px;
+            background-color: #ffffff;
+            border-radius: 10px;
+            font-size: 16px;
+            border: none;
+            padding-left: 12px;
+            padding-right: 12px;
+            margin-right: 16px;
+            
+        }
+
+        label {
+            margin: 0px;
+            color: #113259;
+            font-family: "Montserrat";
+            font-weight: 600;
+            font-size: 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .register-submit-button {
+            font-family: "Montserrat";
+            background-color: #8AB73F;
+            width: 129px;
+            height: 43px;
+            color: #fff;
+            border-radius: 10px;
+            font-size: 16px;
+            cursor: pointer;
+            border: none;
+        }
+
+        .register-submit-button:hover {
+            background-color: #7ea83a;
+        }
+        
+        .register-submit-button-wrapper {
+            display: flex;
+
+        }
+
+        .register-wrapper {
+            background-color: #EBF5FB;
+            padding: 32px;
+            margin-top: 24px;
+            border-radius: 20px;
+        }
+
+        .message {
+            font-family: "Montserrat";
+            font-size: 16px;
+            margin-bottom: 8px;
+            margin-top: 8px;
+            font-weight: 500;
+            color: #f04848;
+        }
+
+    }
 </style>

@@ -7,3 +7,11 @@ body, html {
     padding: 0px;
     margin: 0px;
 }
+
+
+@media (max-width: 576px) {
+    .content {
+        min-width: 360px;
+        width: 100%;
+    }
+}

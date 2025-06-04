@@ -5,11 +5,13 @@
             <div class="title-wrapper">
                 <div class="title-wrapper__left">
                     <h2>Устройство: {{ props.device.name }}</h2>
-                    <router-link :to="{ name: 'Settings', params: { deviceToken: props.device.deviceToken } }">
-                        <img class="settings" src="@/assets/settings.svg" alt="settings" title="Настройки">
-                    </router-link>
-                    <img @click="deleteDevice" class="remove" src="@/assets/unseen.png" title="Убрать из списка" alt="remove">
-                    <img @click="updateDevice" class="update" src="@/assets/refresh.png" title="Обновить" alt="update">
+                    <div class="device-section__buttons">
+                        <router-link :to="{ name: 'Settings', params: { deviceToken: props.device.deviceToken } }">
+                            <img class="settings" src="@/assets/settings.svg" alt="settings" title="Настройки">
+                        </router-link>
+                        <img @click="deleteDevice" class="remove" src="@/assets/unseen.png" title="Убрать из списка" alt="remove">
+                        <img @click="updateDevice" class="update" src="@/assets/refresh.png" title="Обновить" alt="update">
+                    </div>
                 </div>
 
                 <span class="lastActivity"> {{ props.device.lastActivity == "Данные ещё не приходили" ? props.device.lastActivity : `Обновлено: ${props.device.lastActivity}` }}</span>
@@ -120,5 +122,51 @@
         padding: 8px;
         cursor: pointer;
         border-radius: 10px;
+    }
+
+    .device-section__buttons {
+        display: flex;
+        flex-direction: row;
+        gap: 16px;
+        align-items: center;
+    }
+
+    @media (max-width: 576px) {
+        .remove, .settings, .update {
+            width: 25px;
+            height: 25px;
+            padding: 6px;
+        }
+
+        .device-section {
+            padding-top: 24px;
+            padding-bottom: 32px;
+        }
+
+        .title-wrapper {
+            margin-bottom: 24px;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .cards {
+            gap: 20px;
+        }
+
+        .title-wrapper__left {
+            gap: 12px;
+            margin-right: 8px;
+            margin-left: 16px;
+            flex-direction: column;
+        }
+
+        .lastActivity {
+            font-size: 16px;
+            margin-right: 16px;
+        }
+
+        h2 {
+            font-size: 18px;
+        }
     }
 </style>

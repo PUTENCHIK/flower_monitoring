@@ -144,10 +144,35 @@
         background-color: #8AB73F;
     }
 
-    .card__last-update {
-        font-family: "Montserrat";
-        font-size: 16px;
-        color: #fff;
-        margin-top: 16px;
+    @media (max-width: 576px) {
+        .card {
+            width: 90%;
+            height: 410px;
+            gap: 24px;
+            margin: 0 auto;
+        }
+
+        .card__img {
+            width: 240px;
+        }
+
+        h3 {
+            font-size: 18px;
+        }
+
+        .humidity-wrapper {
+            gap: 16px;
+        }
+
+        .humidity-percentage {
+            font-size: 18px;
+        }
+
+        .humidity-bar {
+            width: 220px;
+            height: 22px;
+            border-radius: 8px;
+        }
+
     }
 </style>

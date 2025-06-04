@@ -1,6 +1,6 @@
 <template>
     <div class="main-page">
-        <div class="content ">
+        <div class="content">
             <form @submit="addDevice" class="form-add-device">
                 <span :class="messageClass" >{{ messageValue }}</span>
                 <input minlength="4" maxlength="40" @change="addDeviceInputChange" :class="addDeviceInputClass" v-model="addDeviceInputValue" type="search" name="" id="" placeholder="Токен устройства...">
@@ -386,5 +386,43 @@
         background-color:#ffffff;
         padding-top: 32px;
 
+    }
+
+    @media (max-width: 576px) {
+
+        .form-add-device__input {
+            width: 140px;
+            height: 40px;
+            font-size: 14px;
+            padding-left: 8px;
+            padding-right: 8px;
+            margin-right: 12px;
+        }
+
+        .form-add-device__submit {
+            width: 94px;
+            height: 40px;
+            font-size: 14px;
+            margin-right: 12px;
+        }
+
+        .form-add-device {
+            padding: 16px 0px;
+        }
+
+        .message {
+            font-size: 13px;
+            margin-right: 12px;
+            margin-left: 12px;
+        }
+
+        .nodevices {
+            font-size: 24px;
+        }
+
+        .nodevices-block {
+            padding-top: 32px;
+
+        }
     }
 </style>
