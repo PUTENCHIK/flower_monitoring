@@ -5,21 +5,12 @@ import urllib.parse
 from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession
 from sqlalchemy.ext.declarative import declarative_base
 
-db_user = os.environ.get("FLOWER_MONITORING_USER")
-db_password = os.environ.get("FLOWER_MONITORING_PASSWORD")
-db_host = os.environ.get("FLOWER_MONITORING_HOST")
-db_name = os.environ.get("FLOWER_MONITORING_DBNAME")
+db_url= os.environ.get("FLOWER_DATABASE_URL")
 
-if not db_user:
-    raise ValueError("FLOWER_MONITORING_USER is not set in environment variables.")
-if not db_password:
-    raise ValueError("FLOWER_MONITORING_PASSWORD is not set in environment variables.")
-if not db_host:
-    raise ValueError("FLOWER_MONITORING_HOST is not set in environment variables.")
-if not db_name:
-    raise ValueError("FLOWER_MONITORING_DBNAME is not set in environment variables.")
 
-encoded_password = urllib.parse.quote_plus(db_password)
+if not db_url:
+    raise ValueError("FLOWER_DATABASE_URL is not set in environment variables.")
+
 
 
 async def get_db_session() -> AsyncGenerator[AsyncSession, None]:
@@ -36,7 +27,7 @@ async def create_db_and_tables():
 
 
 database_path = (
-    f"mysql+asyncmy://{db_user}:{encoded_password}@{db_host}/{db_name}?charset=utf8mb4"
+    db_url
 )
 
 engine = create_async_engine(database_path,

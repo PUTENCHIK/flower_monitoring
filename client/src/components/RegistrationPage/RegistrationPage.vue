@@ -45,7 +45,7 @@
         messageValue.value = "";
 
         try {
-            const response = await axios.post('http://localhost:5050/devices/register', {
+            const response = await axios.post('/api/devices/register', {
                 deviceToken: tokenModel.value,
                 password: passwordModel.value
             });

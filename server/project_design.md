@@ -28,7 +28,7 @@ PATCH `/devices/data`
             "value": 215
         },
         "2": {
-            "value": 400,
+            "value": 400
         }
     }
 }
