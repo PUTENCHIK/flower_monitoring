@@ -2,6 +2,7 @@ from contextlib import asynccontextmanager
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi import FastAPI
 from src.devices import devices_router
+from src.notifications import notifications_router
 from src.database import create_db_and_tables
 from src.config import Config
 
@@ -16,7 +17,7 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(lifespan=lifespan)
 app.include_router(devices_router)
-
+app.include_router(notifications_router)
 
 app.add_middleware(CORSMiddleware,
                    allow_origins=Config.app.origins,

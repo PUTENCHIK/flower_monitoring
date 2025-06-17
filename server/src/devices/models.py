@@ -16,6 +16,7 @@ class Device(BaseDBModel):
     deleted_at = Column(DateTime, nullable=True)
     ports = relationship("Port", back_populates="device")
     chat_ids = relationship("DeviceChatIDs", back_populates="device")
+    notifications = relationship("Notification", back_populates="device")
 
 
 class Port(BaseDBModel):

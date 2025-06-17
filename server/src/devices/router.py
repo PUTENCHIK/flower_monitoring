@@ -4,11 +4,12 @@ from starlette.responses import JSONResponse
 import logging
 from src.database import get_db_session
 
-from src.devices import TokenSecuredRequestModel, UpdateDataRequestModel, _register_device, \
-    _update_data, TokenRequestModel, _get_data, UpdateConfigRequestModel, _update_config, _get_config, \
+from src.devices import _register_device, _update_data, _get_data, _update_config, _get_config, \
         _check_password
 
 from src.devices.exceptions import DeviceException
+from src.devices.schemes import TokenSecuredRequestModel, UpdateDataRequestModel, TokenRequestModel, \
+    UpdateConfigRequestModel
 
 devices_router = APIRouter(prefix=f"/devices")
 logger = logging.getLogger(__name__)

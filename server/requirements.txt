@@ -5,5 +5,4 @@ asyncmy
 passlib
 aiogram
 pymysql
-alembic
 cryptography
