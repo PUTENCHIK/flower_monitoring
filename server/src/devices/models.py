@@ -15,8 +15,9 @@ class Device(BaseDBModel):
     created_at = Column(DateTime, nullable=False, server_default=func.now())
     deleted_at = Column(DateTime, nullable=True)
     ports = relationship("Port", back_populates="device")
-    chat_ids = relationship("DeviceChatIDs", back_populates="device")
-    notifications = relationship("Notification", back_populates="device")
+    regular_chat_ids = relationship("RegularNotificationChatIDs", back_populates="device")
+    critical_chat_ids = relationship("СriticalNotificationChatIDs", back_populates="device")
+    notifications = relationship("RegularNotification", back_populates="device")
 
 
 class Port(BaseDBModel):
@@ -33,13 +34,3 @@ class Port(BaseDBModel):
     min_value = Column(Integer, nullable=False)
     max_value = Column(Integer, nullable=False)
     device = relationship("Device", back_populates="ports")
-
-
-class DeviceChatIDs(BaseDBModel):
-    __tablename__ = "device_chat_ids"
-
-    id = Column(Integer, primary_key=True)
-    device_id = Column(Integer, ForeignKey("devices.id"), nullable=True)
-    chat_id = Column(String(255), nullable=True)
-
-    device = relationship("Device", back_populates="chat_ids")

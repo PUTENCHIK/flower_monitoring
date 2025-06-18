@@ -39,7 +39,7 @@ async def update_notification(notification: UpdateNotificationRequestModel, db: 
         return JSONResponse(content={}, status_code=status.HTTP_500_INTERNAL_SERVER_ERROR)
     
 
-@notifications_router.get("/")
+@notifications_router.post("/list")
 async def get_notifications(notification: GetNotificationsRequestModel, db: AsyncSession = Depends(get_db_session)):
     try:
         response = await _get_notifications(notification, db)

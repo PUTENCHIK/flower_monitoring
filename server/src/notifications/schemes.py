@@ -8,7 +8,7 @@ class NotificationRequestModel(BaseModel):
     message: str
     days: int
     time: time
-    enabled: bool
+    isActive: bool
 
 
 class UpdateNotificationRequestModel(NotificationRequestModel):

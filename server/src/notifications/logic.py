@@ -2,12 +2,12 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from fastapi import status
 from src.devices import verify_password
-from src.notifications.models import Notification
+from src.notifications.models import RegularNotification, RegularNotificationChatIDs, СriticalNotificationChatIDs
 from src.notifications.exceptions import BotDeviceException, NotificationException
 from src.notifications.schemes import NotificationRequestModel, UpdateNotificationRequestModel, GetNotificationsRequestModel, \
                             DeleteNotificationRequestModel
 from passlib.context import CryptContext
-from src.devices.models import Device, DeviceChatIDs
+from src.devices.models import Device
 from datetime import datetime
 
 
@@ -19,15 +19,15 @@ async def get_device_by_token(device_token: str, db: AsyncSession) -> Device | N
     return result.scalar_one_or_none()
 
 
-async def _add_chat_id_to_device(deviceToken: str, chat_id: int, db: AsyncSession):
+async def _add_regular_chat_id(deviceToken: str, chat_id: int, db: AsyncSession):
     try:
         device = await db.execute(select(Device).filter(Device.deviceToken == deviceToken))
         device = device.scalars().first()
 
         if not device:
-            raise BotDeviceException(detail="Не верный идентификатор устройства")
+            raise BotDeviceException(detail="Устройства по такому идентификатору не найдено")
 
-        new_chat_id = DeviceChatIDs(device_id=device.id, chat_id=chat_id)
+        new_chat_id = RegularNotificationChatIDs(device_id=device.id, chat_id=chat_id, isActive=True)
         db.add(new_chat_id)
         await db.commit()
 
@@ -36,19 +36,92 @@ async def _add_chat_id_to_device(deviceToken: str, chat_id: int, db: AsyncSessio
         raise
 
 
-async def check_notification(request: NotificationRequestModel, device_id: int, db: AsyncSession) -> Notification | None:
+async def _add_critical_chat_id(deviceToken: str, chat_id: int, db: AsyncSession):
+    try:
+        device = await db.execute(select(Device).filter(Device.deviceToken == deviceToken))
+        device = device.scalars().first()
+
+        if not device:
+            raise BotDeviceException(detail="Устройства по такому идентификатору не найдено")
+
+        new_chat_id = СriticalNotificationChatIDs(device_id=device.id, chat_id=chat_id, isActive=True)
+        db.add(new_chat_id)
+        await db.commit()
+
+    except Exception as e:
+        await db.rollback()
+        raise
+
+
+async def _remove_regular_chat_id(deviceToken: str, chat_id: int, db: AsyncSession):
+    try:
+        device = await db.execute(select(Device).filter(Device.deviceToken == deviceToken))
+        device = device.scalars().first()
+
+        if not device:
+            raise BotDeviceException(detail="Устройства по такому идентификатору не найдено")
+
+
+        regular_notification = await db.execute(select(RegularNotificationChatIDs)
+                                  .filter(RegularNotificationChatIDs.chat_id == chat_id, 
+                                          RegularNotificationChatIDs.device_id == device.id))
+        
+        regular_notification = regular_notification.scalars().first()
+
+        if not regular_notification:
+            raise BotDeviceException(detail="Вы и так к этом устройству не были привязаны")
+
+
+        regular_notification.isActive = False
+        await db.commit()
+
+    except Exception as e:
+        await db.rollback()
+        raise
+
+
+async def _remove_critical_chat_id(deviceToken: str, chat_id: int, db: AsyncSession):
+    try:
+        device = await db.execute(select(Device).filter(Device.deviceToken == deviceToken))
+        device = device.scalars().first()
+
+        if not device:
+            raise BotDeviceException(detail="Устройства по такому идентификатору не найдено")
+
+
+        critical_notification = await db.execute(select(СriticalNotificationChatIDs)
+                                  .filter(СriticalNotificationChatIDs.chat_id == chat_id, 
+                                          СriticalNotificationChatIDs.device_id == device.id))
+        
+        critical_notification = critical_notification.scalars().first()
+
+        if not critical_notification:
+            raise BotDeviceException(detail="Вы и так к этом устройству не были привязаны")
+
+
+        critical_notification.isActive = False
+        await db.commit()
+
+    except Exception as e:
+        await db.rollback()
+        raise
+
+
+
+async def check_notification(request: NotificationRequestModel, device_id: int, db: AsyncSession) -> RegularNotification | None:
     result = await db.execute(
-        select(Notification)
-        .filter(Notification.device_id == device_id, 
-                Notification.time == request.time, 
-                Notification.days == request.days)
+        select(RegularNotification)
+        .filter(RegularNotification.device_id == device_id, 
+                RegularNotification.time == request.time, 
+                RegularNotification.days == request.days,
+                RegularNotification.message == request.message)
     )
 
     return result.scalar_one_or_none()
 
 
-async def get_notification_by_id(notification_id: int, db: AsyncSession) -> Notification | None:
-    result = await db.execute(select(Notification).filter(Notification.id == notification_id))
+async def get_notification_by_id(notification_id: int, db: AsyncSession) -> RegularNotification | None:
+    result = await db.execute(select(RegularNotification).filter(RegularNotification.id == notification_id))
     return result.scalar_one_or_none()
 
 
@@ -67,12 +140,12 @@ async def _create_notification(request: UpdateNotificationRequestModel, db: Asyn
     if found_notification is not None:
         raise NotificationException(status.HTTP_400_BAD_REQUEST, "The notification is already created")
 
-    db_notification = Notification(
+    db_notification = RegularNotification(
         device_id=device.id,
         message=request.message,
         days=request.days,
         time=request.time,
-        enabled=request.enabled,
+        isActive=request.isActive,
         created_at=datetime.now()
     )
 
@@ -105,9 +178,8 @@ async def _update_notification(request: UpdateNotificationRequestModel, db: Asyn
     db_notification.message = request.message
     db_notification.days = request.days
     db_notification.time = request.time
-    db_notification.enabled = request.enabled
+    db_notification.isActive = request.isActive
 
-    db.add(db_notification)
     await db.commit()
 
 
@@ -117,7 +189,7 @@ async def _get_notifications(request: GetNotificationsRequestModel, db: AsyncSes
     if not device:
         raise NotificationException(status_code=status.HTTP_404_NOT_FOUND, detail="Invalid deviceToken")
     
-    notifications = await db.execute(select(Notification).filter(Notification.device_id == device.id))
+    notifications = await db.execute(select(RegularNotification).filter(RegularNotification.device_id == device.id))
     notifications = notifications.scalars().all()
 
     response = []
@@ -127,8 +199,8 @@ async def _get_notifications(request: GetNotificationsRequestModel, db: AsyncSes
             "id": notification.id,
             "message": notification.message,
             "days": notification.days,
-            "time": notification.time,
-            "enabled": notification.enabled
+            "time": notification.time.strftime("%H:%M"),
+            "isActive": notification.isActive
         })
 
     return response
@@ -149,5 +221,5 @@ async def _delete_notification(request: DeleteNotificationRequestModel, db: Asyn
     if db_notification is None:
         raise NotificationException(status.HTTP_404_NOT_FOUND, "Notification not found")
 
-    db.delete(db_notification)
+    db_notification.deleted_at = datetime.now()
     await db.commit()
