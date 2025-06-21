@@ -1,11 +1,11 @@
 import asyncio
 import os
 from aiogram import Bot, Dispatcher, types, F, Router
-from aiogram.filters import CommandStart, Command, StateFilter
+from aiogram.filters import CommandStart
 from aiogram.types import Message
 from sqlalchemy.ext.asyncio import AsyncSession
 import logging
-from src.utils.scheduler import scheduler
+from src.utils import scheduler_critical, scheduler_regular
 from src.database import engine
 from src.notifications import _add_critical_chat_id, _add_regular_chat_id, _remove_critical_chat_id, _remove_regular_chat_id
 from src.notifications.exceptions import BotDeviceException
@@ -262,7 +262,8 @@ async def link_chat(message: Message, state: FSMContext):
 async def main():
     try:
         print("Bot started")
-        asyncio.create_task(scheduler(bot))
+        asyncio.create_task(scheduler_critical(bot))
+        asyncio.create_task(scheduler_regular(bot))
         await dp.start_polling(bot)
     except KeyboardInterrupt:
         print("Bot stopped")
