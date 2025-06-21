@@ -19,6 +19,18 @@ class GetNotificationsRequestModel(BaseModel):
     deviceToken: str
 
 
+class GetNotificationRequestModel(BaseModel):
+    deviceToken: str
+    notification_id: int
+
+
+class ChangeStateNotificationRequestModel(BaseModel):
+    deviceToken: str
+    password: str
+    notification_id: int
+    isActive: bool
+
+
 class DeleteNotificationRequestModel(BaseModel):
     deviceToken: str
     password: str

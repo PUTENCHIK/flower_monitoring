@@ -27,7 +27,7 @@ class ConfigData:
     default_medium_level_boundary = 66
 
 class ConfigScheduler:
-    check_interval_hours = 1
+    check_critical_interval_hours = 1
 
 
 class Config:

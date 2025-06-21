@@ -5,7 +5,7 @@ from src.devices import verify_password
 from src.notifications.models import RegularNotification, RegularNotificationChatIDs, СriticalNotificationChatIDs
 from src.notifications.exceptions import BotDeviceException, NotificationException
 from src.notifications.schemes import NotificationRequestModel, UpdateNotificationRequestModel, GetNotificationsRequestModel, \
-                            DeleteNotificationRequestModel
+                            DeleteNotificationRequestModel, GetNotificationRequestModel, ChangeStateNotificationRequestModel
 from passlib.context import CryptContext
 from src.devices.models import Device
 from datetime import datetime
@@ -25,10 +25,24 @@ async def _add_regular_chat_id(deviceToken: str, chat_id: int, db: AsyncSession)
         device = device.scalars().first()
 
         if not device:
-            raise BotDeviceException(detail="Устройства по такому идентификатору не найдено")
+            raise BotDeviceException(detail="Устройства по такому токену не найдено. Попробуйте ещё раз ввести токен устройства.")
+        
 
-        new_chat_id = RegularNotificationChatIDs(device_id=device.id, chat_id=chat_id, isActive=True)
-        db.add(new_chat_id)
+        notify_user = await db.execute(select(RegularNotificationChatIDs)
+                                       .filter(RegularNotificationChatIDs.device_id == device.id,
+                                               RegularNotificationChatIDs.chat_id == chat_id))
+        
+        notify_user = notify_user.scalars().first()
+
+        if notify_user:
+            if notify_user.isActive:
+                raise BotDeviceException(detail="Чат уже привязан к устройству")
+            else:
+                notify_user.isActive = True
+        else:
+            new_chat_id = RegularNotificationChatIDs(device_id=device.id, chat_id=chat_id, isActive=True)
+            db.add(new_chat_id)
+        
         await db.commit()
 
     except Exception as e:
@@ -42,10 +56,24 @@ async def _add_critical_chat_id(deviceToken: str, chat_id: int, db: AsyncSession
         device = device.scalars().first()
 
         if not device:
-            raise BotDeviceException(detail="Устройства по такому идентификатору не найдено")
+            raise BotDeviceException(detail="Устройства по такому токену не найдено. Попробуйте ещё раз ввести токен устройства.")
+        
 
-        new_chat_id = СriticalNotificationChatIDs(device_id=device.id, chat_id=chat_id, isActive=True)
-        db.add(new_chat_id)
+        notify_user = await db.execute(select(СriticalNotificationChatIDs)
+                                       .filter(СriticalNotificationChatIDs.device_id == device.id,
+                                               СriticalNotificationChatIDs.chat_id == chat_id))
+        
+        notify_user = notify_user.scalars().first()
+
+        if notify_user:
+            if notify_user.isActive:
+                raise BotDeviceException(detail="Чат уже привязан к устройству")
+            else:
+                notify_user.isActive = True
+        else:
+            new_chat_id = СriticalNotificationChatIDs(device_id=device.id, chat_id=chat_id, isActive=True)
+            db.add(new_chat_id)
+        
         await db.commit()
 
     except Exception as e:
@@ -59,7 +87,7 @@ async def _remove_regular_chat_id(deviceToken: str, chat_id: int, db: AsyncSessi
         device = device.scalars().first()
 
         if not device:
-            raise BotDeviceException(detail="Устройства по такому идентификатору не найдено")
+            raise BotDeviceException(detail="Устройства по такому токену не найдено. Попробуйте ещё раз ввести токен устройства.")
 
 
         regular_notification = await db.execute(select(RegularNotificationChatIDs)
@@ -86,7 +114,7 @@ async def _remove_critical_chat_id(deviceToken: str, chat_id: int, db: AsyncSess
         device = device.scalars().first()
 
         if not device:
-            raise BotDeviceException(detail="Устройства по такому идентификатору не найдено")
+            raise BotDeviceException(detail="Устройства по такому токену не найдено. Попробуйте ещё раз ввести токен устройства.")
 
 
         critical_notification = await db.execute(select(СriticalNotificationChatIDs)
@@ -189,7 +217,9 @@ async def _get_notifications(request: GetNotificationsRequestModel, db: AsyncSes
     if not device:
         raise NotificationException(status_code=status.HTTP_404_NOT_FOUND, detail="Invalid deviceToken")
     
-    notifications = await db.execute(select(RegularNotification).filter(RegularNotification.device_id == device.id))
+    notifications = await db.execute(select(RegularNotification)
+                                     .filter(RegularNotification.device_id == device.id,
+                                             RegularNotification.deleted_at == None))
     notifications = notifications.scalars().all()
 
     response = []
@@ -222,4 +252,55 @@ async def _delete_notification(request: DeleteNotificationRequestModel, db: Asyn
         raise NotificationException(status.HTTP_404_NOT_FOUND, "Notification not found")
 
     db_notification.deleted_at = datetime.now()
+    await db.commit()
+
+
+async def _get_notification(request: GetNotificationRequestModel, db: AsyncSession):
+    device = await get_device_by_token(request.deviceToken, db)
+
+    if not device:
+        raise NotificationException(status_code=status.HTTP_404_NOT_FOUND, detail="Invalid deviceToken")
+    
+    notification = await db.execute(select(RegularNotification)
+                                     .filter(RegularNotification.device_id == device.id,
+                                             RegularNotification.id == request.notification_id,
+                                             RegularNotification.deleted_at == None))
+    
+    notification = notification.scalar_one_or_none()
+
+    if not notification:
+        raise NotificationException(status_code=status.HTTP_404_NOT_FOUND, detail="Invalid notification id")
+
+    response = {
+        "id": notification.id,
+        "message": notification.message,
+        "days": notification.days,
+        "time": notification.time.strftime("%H:%M"),
+        "isActive": notification.isActive
+    }
+
+    return response
+
+
+async def _change_state_notification(request: ChangeStateNotificationRequestModel, db: AsyncSession):
+    device = await get_device_by_token(request.deviceToken, db)
+
+    if not device:
+        raise NotificationException(status_code=status.HTTP_404_NOT_FOUND, detail="Invalid deviceToken")
+    
+    if not verify_password(request.password, device.password):
+        raise NotificationException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid password")
+    
+    notification = await db.execute(select(RegularNotification)
+                                     .filter(RegularNotification.device_id == device.id,
+                                             RegularNotification.id == request.notification_id,
+                                             RegularNotification.deleted_at == None))
+    
+    notification = notification.scalar_one_or_none()
+
+    if not notification:
+        raise NotificationException(status_code=status.HTTP_404_NOT_FOUND, detail="Invalid notification id")
+
+    notification.isActive = request.isActive
+
     await db.commit()
