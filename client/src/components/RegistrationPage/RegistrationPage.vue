@@ -11,12 +11,12 @@
                 <label>
                     Токен устройства:
                     <br>
-                    <input minlength="4" maxlength="40" @change="inputChange" v-model="tokenModel" type="text" name="" id="" placeholder="Введите токен устройства">
+                    <input required minlength="4" maxlength="40" @change="inputChange" v-model="tokenModel" type="text" name="" id="" placeholder="Введите токен устройства">
                 </label>
                 <label>
                     Пароль устройства:
                     <br>
-                    <input minlength="4" maxlength="40" v-model="passwordModel" type="password" name="" id="" placeholder="Введите пароль устройства">
+                    <input required minlength="4" maxlength="40" v-model="passwordModel" type="password" name="" id="" placeholder="Введите пароль устройства">
                 </label>
                 <span class="message"> {{ messageValue }}</span>
                 <div class="register-submit-button-wrapper">
@@ -45,7 +45,7 @@
         messageValue.value = "";
 
         try {
-            const response = await axios.post('/api/devices/register', {
+            const response = await axios.post('http://localhost:5050/devices/register', {
                 deviceToken: tokenModel.value,
                 password: passwordModel.value
             });
@@ -97,22 +97,23 @@
         color: #113259;
         margin-bottom: 48px;
         text-align: center;
+        font-size: 25px;
     }
 
 
     form {
         display: flex;
         flex-direction: column;
-        gap: 32px;
+        gap: 24px;
     }
 
     input {
         font-family: "Montserrat";
         width: 433px;
-        height: 53px;
+        height: 46px;
         background-color: #ffffff;
         border-radius: 10px;
-        font-size: 20px;
+        font-size: 18px;
         border: none;
         padding-left: 12px;
         padding-right: 12px;
@@ -125,7 +126,7 @@
         color: #113259;
         font-family: "Montserrat";
         font-weight: 600;
-        font-size: 22px;
+        font-size: 18px;
         display: flex;
         flex-direction: column;
         gap: 16px;
@@ -134,8 +135,8 @@
     .register-submit-button {
         font-family: "Montserrat";
         background-color: #8AB73F;
-        width: 149px;
-        height: 53px;
+        width: 150px;
+        height: 45px;
         color: #fff;
         border-radius: 10px;
         font-size: 18px;
@@ -161,7 +162,7 @@
 
     .message {
         font-family: "Montserrat";
-        font-size: 20px;
+        font-size: 18px;
         margin-bottom: 16px;
         margin-top: 16px;
         font-weight: 500;
@@ -169,7 +170,7 @@
     }
 
     .back {
-        width: 32px;
+        width: 26px;
         padding: 8px;
         cursor: pointer;
         border-radius: 10px;

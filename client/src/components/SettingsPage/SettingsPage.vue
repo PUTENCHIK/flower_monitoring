@@ -1,6 +1,7 @@
 <template>
     <div class="content">
         <div class="settings-wrapper">
+            <img class="back" src="@/assets/arrow.png" @click="() => router.go(-1)">
             <h1>Настройка устройства</h1>
             <form @submit="changeConfig">
                 <div class="config-block config-main">
@@ -135,7 +136,7 @@
         } 
 
         try {
-            await axios.put('/api/devices/config', {
+            await axios.put('http://localhost:5050/devices/config', {
                 deviceToken: props.deviceToken,
                 password: passwordModel.value,
                 new_password: newPassword,
@@ -173,10 +174,9 @@
         }
     }
 
-
     async function getConfig() {
         try {
-            const response = await axios.post('/api/devices/config', {
+            const response = await axios.post('http://localhost:5050/devices/config', {
                 deviceToken: props.deviceToken
             });
             
@@ -228,21 +228,22 @@
         color: #113259;
         margin-bottom: 48px;
         text-align: center;
+        font-size: 25px;
     }
 
     form {
         display: flex;
         flex-direction: column;
-        gap: 32px;
+        gap: 24px;
     }
 
     input[type="text"], input[type="number"], input[type="password"] {
         font-family: "Montserrat";
         width: 433px;
-        height: 53px;
+        height: 46px;
         background-color: #ffffff;
         border-radius: 10px;
-        font-size: 20px;
+        font-size: 18px;
         border: none;
         padding-left: 12px;
         padding-right: 12px;
@@ -251,8 +252,8 @@
     
 
     input[type="checkbox"] {
-        width: 40px;
-        height: 40px;
+        width: 32px;
+        height: 32px;
     }
 
     label {
@@ -260,7 +261,7 @@
         color: #113259;
         font-family: "Montserrat";
         font-weight: 600;
-        font-size: 22px;
+        font-size: 18px;
         display: flex;
         flex-direction: column;
         gap: 16px;
@@ -269,8 +270,8 @@
     .settings-submit-button {
         font-family: "Montserrat";
         background-color: #8AB73F;
-        width: 149px;
-        height: 53px;
+        width: 150px;
+        height: 45px;
         color: #fff;
         border-radius: 10px;
         font-size: 18px;
@@ -293,11 +294,12 @@
         margin-top: 24px;
         border-radius: 20px;
         margin-bottom: 48px;
+        
     }
 
     .message {
         font-family: "Montserrat";
-        font-size: 20px;
+        font-size: 18px;
         margin-bottom: 16px;
         margin-top: 16px;
         font-weight: 500;
@@ -316,14 +318,15 @@
     }
 
     .config-block legend {
-        font-size: 20px;
+        font-size: 18px;
         font-family: "Montserrat";
         font-weight: 500;
     }
 
     .checkbox_label {
         flex-direction: row;
-        align-items: center
+        align-items: center;
+        margin-right: 32px;
     }
 
     .config-main {
@@ -336,10 +339,23 @@
         gap: 24px;
     }
 
+    .back {
+        width: 26px;
+        padding: 8px;
+        cursor: pointer;
+        border-radius: 10px;
+    }
+
+    .back:hover {
+        background-color: #eaeaea;
+        box-shadow: 0px 5px 10px 2px rgba(34, 60, 80, 0.2);
+    }
+
     @media (max-width: 576px) {
         h1 {
             margin-bottom: 32px;
             font-size: 18px;
+            margin-top: 24px;
         }
 
         form {
@@ -404,5 +420,8 @@
             flex-direction: column;
         }
 
+        .back {
+            display: none;
+        }
     }
 </style>

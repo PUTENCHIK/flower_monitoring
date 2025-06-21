@@ -41,15 +41,14 @@
     }
 
     .logo {
-        width: 50px;
-        height: 50px;
+        width: 34px;
         margin-right: 12px;
     }
 
     .logo-name {
         font-family: "Montserrat";
         font-weight: 500;
-        font-size: 24px;
+        font-size: 19px;
         text-decoration: none;
         color: black;
     }
@@ -63,11 +62,11 @@
     .button-register {
         font-family: "Montserrat";
         background-color: #8AB73F;
-        width: 199px;
-        height: 53px;
+        width: 175px;
+        height: 40px;
         color: #fff;
         border-radius: 10px;
-        font-size: 18px;
+        font-size: 16px;
         cursor: pointer;
         border: none;
     }

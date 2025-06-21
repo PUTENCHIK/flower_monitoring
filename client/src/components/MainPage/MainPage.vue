@@ -3,8 +3,11 @@
         <div class="content">
             <form @submit="addDevice" class="form-add-device">
                 <span :class="messageClass" >{{ messageValue }}</span>
-                <input minlength="4" maxlength="40" @change="addDeviceInputChange" :class="addDeviceInputClass" v-model="addDeviceInputValue" type="search" name="" id="" placeholder="Токен устройства...">
-                <button class="form-add-device__submit" type="submit">Добавить</button>
+                <div class="form_add-device__wrapper">
+                    <input minlength="4" maxlength="40" @change="addDeviceInputChange" :class="addDeviceInputClass" v-model="addDeviceInputValue" type="search" name="" id="" placeholder="Токен устройства...">
+                    <button class="form-add-device__submit" type="submit">Добавить</button>
+                </div>
+               
             </form>
         </div>
         <div class="devices">
@@ -62,7 +65,7 @@
         }
 
         try {
-            const response = await axios.post('/api/devices/data', {
+            const response = await axios.post('http://localhost:5050/devices/data', {
                 deviceToken: addDeviceInputValue.value
             });
             console.log('Успешный ответ:', response.data);
@@ -182,7 +185,7 @@
 
         for (let i = 0; i < localDevices.length; i++) {
             try {
-                const response = await axios.post('/api/devices/data', {
+                const response = await axios.post('http://localhost:5050/devices/data', {
                     deviceToken: localDevices[i]
                 });
                 console.log('Успешный ответ:', response.data);
@@ -242,7 +245,7 @@
         }
 
         try {
-            const response = await axios.post('/api/devices/data', {
+            const response = await axios.post('http://localhost:5050/devices/data', {
                 deviceToken: deviceToken
             });
             console.log('Успешный ответ:', response.data);
@@ -304,7 +307,6 @@
         await getDevices();
     });
     
-    
 
 </script>
 
@@ -316,11 +318,11 @@
 
     .form-add-device__input {
         font-family: "Montserrat";
-        width: 433px;
-        height: 53px;
+        width: 400px;
+        height: 45px;
         background-color: #ffffff;
         border-radius: 10px;
-        font-size: 20px;
+        font-size: 17px;
         border: 3px solid rgb(133, 128, 128);
         padding-left: 12px;
         padding-right: 12px;
@@ -331,10 +333,10 @@
         font-family: "Montserrat";
         background-color: #113259;
         color: #fff;
-        width: 124px;
-        height: 53px;
+        width: 116px;
+        height: 42px;
         border-radius: 10px;
-        font-size: 18px;
+        font-size: 16px;
         cursor: pointer;
         border: none;
     }
@@ -347,7 +349,7 @@
         display: flex;
         flex-direction: row;
         justify-content: flex-end;
-        padding: 24px 0px;
+        padding: 16px 0px;
         align-items: center;
     }
 
@@ -361,7 +363,7 @@
 
     .message {
         font-family: "Montserrat";
-        font-size: 20px;
+        font-size: 18px;
         margin-right: 16px;
         font-weight: 500;
     }
@@ -376,7 +378,7 @@
 
     .nodevices {
         font-family: "Montserrat";
-        font-size: 24px;
+        font-size: 19px;
         font-weight: 500;
     }
 
@@ -388,15 +390,21 @@
 
     }
 
+    .form_add-device__wrapper {
+        display: flex;
+        flex-direction: row;
+    }
+
     @media (max-width: 576px) {
 
         .form-add-device__input {
-            width: 140px;
+            width: 230px;
             height: 40px;
             font-size: 14px;
             padding-left: 8px;
             padding-right: 8px;
             margin-right: 12px;
+            margin-left: 12px;
         }
 
         .form-add-device__submit {
@@ -408,11 +416,14 @@
 
         .form-add-device {
             padding: 16px 0px;
+            display: flex;
+            flex-direction: column-reverse;
+            gap: 16px;
         }
 
         .message {
-            font-size: 13px;
-            margin-right: 12px;
+            font-size: 14px;
+            /* margin-right: 12px; */
             margin-left: 12px;
         }
 

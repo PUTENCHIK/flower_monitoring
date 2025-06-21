@@ -11,6 +11,9 @@
                         </router-link>
                         <img @click="deleteDevice" class="remove" src="@/assets/unseen.png" title="Убрать из списка" alt="remove">
                         <img @click="updateDevice" class="update" src="@/assets/refresh.png" title="Обновить" alt="update">
+                        <router-link :to="{ name: 'Notifications', params: { deviceToken: props.device.deviceToken } }">
+                            <img class="notify" src="@/assets/calendar.png" title="Уведомления" alt="notify">
+                        </router-link>
                     </div>
                 </div>
 
@@ -57,7 +60,7 @@
 
 <style scoped>
     .remove {
-        width: 32px;
+        width: 28px;
         padding: 8px;
         cursor: pointer;
         border-radius: 10px;
@@ -77,13 +80,13 @@
     }
 
     .settings {
-        width: 32px;
+        width: 28px;
         padding: 8px;
         cursor: pointer;
         border-radius: 10px;
     }
 
-    .settings:hover, .remove:hover, .update:hover {
+    .settings:hover, .remove:hover, .update:hover, .notify:hover {
         background-color: #eaeaea;
         box-shadow: 0px 5px 10px 2px rgba(34, 60, 80, 0.2);
     }
@@ -93,6 +96,7 @@
         color: #113259;
         font-family: "Montserrat";
         font-weight: 600;
+        font-size: 20px;
     }
 
     .cards {
@@ -110,15 +114,15 @@
     }
 
     .lastActivity {
-        font-size: 20px;
+        font-size: 18px;
         color: #113259;
         font-family: "Montserrat";
         font-weight: 600;
     }
 
-    .update {
-        width: 34px;
-        height: 34px;
+    .update, .notify {
+        width: 28px;
+        height: 28px;
         padding: 8px;
         cursor: pointer;
         border-radius: 10px;
@@ -127,7 +131,7 @@
     .device-section__buttons {
         display: flex;
         flex-direction: row;
-        gap: 16px;
+        gap: 18px;
         align-items: center;
     }
 

@@ -74,13 +74,13 @@
 
 <style scoped>
     .card {
-        width: 413px;
-        height: 500px;
+        width: 370px;
+        height: 450px;
         border-radius: 38px;
         display: flex;
         flex-direction: column;
         align-items: center;
-        gap: 24px;
+        gap: 16px;
         box-shadow: 0px 5px 10px 2px rgba(34, 60, 80, 0.2);
     }
 
@@ -102,7 +102,7 @@
 
     h3 {
         font-family: "Montserrat";
-        font-size: 24px;
+        font-size: 21px;
         color: #fff;
         margin: 0px;
     }
@@ -115,13 +115,13 @@
 
     .humidity-percentage {
         font-family: "Montserrat";
-        font-size: 24px;
+        font-size: 21px;
         color: #fff;
         font-weight: 500;
     }
 
     .humidity-bar {
-        width: 250px;
+        width: 230px;
         height: 27px;
         border-radius: 10px;
         background-color: #686868;
@@ -142,6 +142,10 @@
 
     .humidity-bar__progress--high {
         background-color: #8AB73F;
+    }
+
+    .card__img {
+        width: 300px;
     }
 
     @media (max-width: 576px) {
