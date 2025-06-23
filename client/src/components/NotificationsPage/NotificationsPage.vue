@@ -100,12 +100,11 @@
                     id: notification.id,
                     message: notification.message,
                     days: weekdays.toString().replaceAll(',', ', '),
-                    time: notification.time, 
+                    time: notification.time + " по МСК", 
                     isActive: notification.isActive
                 })
             });
 
-            // notifications.splice(0, notifications.length, ...response.data.data);
         } catch (e) {
             let errorMessage = 'Неизвестная ошибка при получении уведомлений.';
             if (e instanceof Error) {

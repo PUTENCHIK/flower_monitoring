@@ -8,14 +8,17 @@ from src.database import engine
 from src.devices.models import Device
 from src.notifications.models import RegularNotificationChatIDs, RegularNotification
 logger = logging.getLogger(__name__)
+import pytz
 
 
 def is_right_time(days: int, time: datetime.time) -> bool:
-    now = datetime.datetime.now()
-    current_weekday = now.weekday()
+    moscow_timezone = pytz.timezone('Europe/Moscow')
+    now_utc = datetime.datetime.utcnow()
+    now_moscow = now_utc.replace(tzinfo=pytz.utc).astimezone(moscow_timezone)
+    current_weekday = now_moscow.weekday()
+    current_time = now_moscow.time()
 
     if days & (1 << current_weekday):
-        current_time = now.time()
         if current_time.hour == time.hour and current_time.minute == time.minute:
             return True
         else:
@@ -55,7 +58,7 @@ async def check_and_notify_regular(bot: Bot):
 
                 for chat_id in chat_ids:
                     try:
-                        message = f"🗓️ Уведомление, запланированное на {notification.time.strftime('%H:%M')}: \n\n{notification.message} 💬"
+                        message = f"🗓️ Уведомление, запланированное на {notification.time.strftime('%H:%M')} по МСК: \n\n{notification.message} 💬"
                         await bot.send_message(chat_id, message)
                     except Exception as e:
                         print(f"Не удалось отправить сообщение в чат {chat_id}: {e}")

@@ -12,7 +12,7 @@
                     <input required minlength="4" maxlength="40" @change="inputChange" v-model="notifyMessageModel" type="text" name="" id="" placeholder="Введите сообщение">
                 </label>
                 <label>
-                    Время отправки уведомления:
+                    Время отправки уведомления (по МСК):
                     <br>
                     <input required @change="inputChange" v-model="notifyTimeModel" type="time" name="" id="">
                 </label>
@@ -33,6 +33,7 @@
                         </button>
                     </div>
                 </div>
+                
                 <label>
                     Пароль устройства:
                     <br>
