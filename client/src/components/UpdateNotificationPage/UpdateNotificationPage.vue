@@ -12,7 +12,7 @@
                     <input minlength="4" maxlength="40" @change="inputChange" v-model="notifyMessageModel" type="text" name="" id="" placeholder="Введите сообщение">
                 </label>
                 <label>
-                    Время отправки уведомления:
+                    Время отправки уведомления (по МСК):
                     <br>
                     <input @change="inputChange" v-model="notifyTimeModel" type="time" name="" id="">
                 </label>
