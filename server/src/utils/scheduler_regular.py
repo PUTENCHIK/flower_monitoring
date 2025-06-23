@@ -55,7 +55,7 @@ async def check_and_notify_regular(bot: Bot):
 
                 for chat_id in chat_ids:
                     try:
-                        message = f"🗓️Уведомление запланированное на {notification.time}: \n\n{notification.message}💬"
+                        message = f"🗓️ Уведомление, запланированное на {notification.time.strftime("%H:%M")}: \n\n{notification.message} 💬"
                         await bot.send_message(chat_id, message)
                     except Exception as e:
                         print(f"Не удалось отправить сообщение в чат {chat_id}: {e}")

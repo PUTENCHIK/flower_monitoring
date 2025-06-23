@@ -11,7 +11,7 @@ from src.notifications import _add_critical_chat_id, _add_regular_chat_id, _remo
 from src.notifications.exceptions import BotDeviceException
 from aiogram.fsm.context import FSMContext  
 from aiogram.fsm.state import State, StatesGroup
-
+import os
 
 
 class LinkState(StatesGroup):
@@ -257,6 +257,7 @@ async def link_chat(message: Message, state: FSMContext):
             await message.reply("Неизвестная ошибка. Начните сначала или попробуйте позже",
                                  reply_markup=keyboard)
             return
+
 
 
 async def main():
