@@ -1,5 +1,5 @@
 <template>
-    <div class="content">
+    <div class="content notification-content">
         <div class="create-wrapper">
             <div>
                 <img class="back" src="@/assets/arrow.png" @click="() => router.go(-1)">
@@ -135,7 +135,7 @@
         }
 
         try {
-            const response = await axios.put('http://localhost:5050/notifications', {
+            const response = await axios.put('/api/notifications', {
                 deviceToken: props.deviceToken,
                 password: passwordModel.value,
                 message: notifyMessageModel.value,
@@ -182,7 +182,7 @@
 
     async function getNofitification() {
         try {
-            const response = await axios.post('http://localhost:5050/notifications/find', {
+            const response = await axios.post('/api/notifications/find', {
                 deviceToken: props.deviceToken,
                 notification_id: props.id
             });
@@ -231,12 +231,18 @@
 
 
 <style scoped>
+    .notification-content {
+        display: flex;
+        justify-content: center;
+    }
+
     .create-wrapper {
         background-color: #EBF5FB;
         padding: 32px;
         margin-top: 24px;
         border-radius: 20px;
         margin-bottom: 48px;
+        width: 60%;
     }
 
     h1 {
@@ -411,6 +417,10 @@
             width: 129px;
             height: 43px;
             font-size: 16px;
+        }
+
+        .create-wrapper {
+            width: 100%;
         }
     }
 </style>

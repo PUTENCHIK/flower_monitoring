@@ -35,6 +35,7 @@
             </div>
 
         </div>
+
     </div>
 </template>
 
@@ -46,6 +47,8 @@
     const loading = ref(false);
     const error = ref(null);
     const router = useRouter()
+
+
     let notifications = reactive([]);
 
     const props = defineProps({
@@ -61,7 +64,7 @@
         notifications = [];
 
         try {
-            const response = await axios.post('http://localhost:5050/notifications/list', {
+            const response = await axios.post('/api/notifications/list', {
                 deviceToken: props.deviceToken
             });
 

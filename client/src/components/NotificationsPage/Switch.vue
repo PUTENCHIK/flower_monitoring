@@ -2,7 +2,7 @@
     <label
         class="switch"
         title='Активировать/Деактивировать уведомление'>
-        <input type='checkbox' v-model="internalIsUsed" />
+        <input type='checkbox' v-model="internalIsUsed" @change="handleChange" />
         <span class="slider round"></span>
     </label>
 </template>
@@ -19,19 +19,12 @@
             required: true,
         }
     });
-        const internalIsUsed = ref(props.isUsed);
+    const internalIsUsed = ref(props.isUsed);
 
-    watch(internalIsUsed, (newValue) => {
-        emit("switch", newValue);
-    });
-
-    onMounted(() => {
-        internalIsUsed.value = props.isUsed;
-    });
-
-    watch(() => props.isUsed, (newValue) => {
-        internalIsUsed.value = newValue;
-    });
+    const handleChange = () => {
+        internalIsUsed.value = !internalIsUsed.value;
+        emit("switch", !internalIsUsed.value);
+    }
 
 </script>
 

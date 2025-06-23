@@ -28,6 +28,12 @@
                 />
             </div>
         </td>
+
+        <ModalPassword
+            :is-visible="isModalVisible"
+            @close="closePasswordModal"
+            @submit="handlePasswordSubmit"
+        />
     </tr>
 
 </template>
@@ -35,9 +41,33 @@
 <script setup>
     import Switch from './Switch.vue';
     import axios from 'axios';
-    import { defineEmits } from 'vue';
-
+    import { defineEmits, ref } from 'vue';
+    import ModalPassword from './ModalPassword.vue';
     const emit = defineEmits(['refresh-data']);  
+    const isModalVisible = ref(false);
+    const password = ref('');
+    const deleting = ref(false)
+    const changing = ref(false)
+    const checked = ref(false)
+
+    const closePasswordModal = () => {
+        isModalVisible.value = false;
+        changing.value = false;
+        deleting.value = false;
+        checked.value = false;
+    };
+
+    const handlePasswordSubmit = async (submittedPassword) => {
+        password.value = submittedPassword;
+        if (deleting.value) {
+            await deleteRow();
+        }
+        else if (changing.value) {
+            await changeState();
+        }
+
+    };
+
 
     const props = defineProps({
         notification: {
@@ -50,19 +80,26 @@
         }
     });
 
+    const handleDelete = () => {
+        deleting.value = true;
+        isModalVisible.value = true;
+    }
 
-    const handleDelete = async () => {
+
+    const deleteRow = async () => {
+        deleting.value = false;
         try {
-            const response = await axios.delete('http://localhost:5050/notifications', {
+            const response = await axios.delete('/api/notifications', {
                 data: {
                     deviceToken: props.deviceToken,
-                    password: "password123",
+                    password: password.value,
                     notification_id: parseInt(props.notification.id)
                 }
             });
 
             console.log(response);
             emit('refresh-data');
+            
         } catch (e) {
             let errorMessage = 'Неизвестная ошибка при получении уведомлений.';
             if (e instanceof Error) {
@@ -72,13 +109,20 @@
         }
     };
 
-    const handleChangeState = async (checked) => {
+
+    const handleChangeState = (checkedParam) => {
+        checked.value = checkedParam;
+        changing.value = true;
+        isModalVisible.value = true;
+    }
+
+    const changeState = async () => {
         try {
-            const response = await axios.patch('http://localhost:5050/notifications/', {
+            const response = await axios.patch('/api/notifications/', {
                 deviceToken: props.deviceToken,
-                password: "password123",
+                password: password.value,
                 notification_id: props.notification.id,
-                isActive: checked
+                isActive: checked.value
             });
 
             console.log(response);

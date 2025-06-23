@@ -1,5 +1,5 @@
 <template>
-    <div class="content">
+    <div class="content register-content">
         <div class="register-wrapper">
             <div>
                 <router-link to="/">
@@ -45,7 +45,7 @@
         messageValue.value = "";
 
         try {
-            const response = await axios.post('http://localhost:5050/devices/register', {
+            const response = await axios.post('/api/devices/register', {
                 deviceToken: tokenModel.value,
                 password: passwordModel.value
             });
@@ -92,6 +92,11 @@
 
 
 <style scoped>
+    .register-content {
+        display: flex;
+        justify-content: center;
+    }
+
     h1 {
         font-family: "Montserrat";
         color: #113259;
@@ -109,7 +114,7 @@
 
     input {
         font-family: "Montserrat";
-        width: 433px;
+        width: 65%;
         height: 46px;
         background-color: #ffffff;
         border-radius: 10px;
@@ -158,6 +163,7 @@
         padding: 32px;
         margin-top: 24px;
         border-radius: 20px;
+        width: 60%;
     }
 
     .message {
@@ -257,6 +263,7 @@
             padding: 32px;
             margin-top: 24px;
             border-radius: 20px;
+            width: 100%;
         }
 
         .message {

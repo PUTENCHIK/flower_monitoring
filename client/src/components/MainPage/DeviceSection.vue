@@ -76,7 +76,7 @@
         flex-direction: row;
         align-items: center;
         margin-bottom: 32px;
-        justify-content: space-between;
+        justify-content: space-around;
     }
 
     .settings {
@@ -103,7 +103,7 @@
         display: flex;
         flex-wrap: wrap;
         gap: 20px;
-
+        justify-content: center;
     }
 
     .title-wrapper__left {
@@ -151,6 +151,7 @@
             margin-bottom: 24px;
             flex-direction: column;
             gap: 16px;
+            
         }
 
         .cards {

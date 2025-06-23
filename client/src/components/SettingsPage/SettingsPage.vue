@@ -136,7 +136,7 @@
         } 
 
         try {
-            await axios.put('http://localhost:5050/devices/config', {
+            await axios.put('/api/devices/config', {
                 deviceToken: props.deviceToken,
                 password: passwordModel.value,
                 new_password: newPassword,
@@ -176,7 +176,7 @@
 
     async function getConfig() {
         try {
-            const response = await axios.post('http://localhost:5050/devices/config', {
+            const response = await axios.post('/api/devices/config', {
                 deviceToken: props.deviceToken
             });
             

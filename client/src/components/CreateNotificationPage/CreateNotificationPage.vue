@@ -1,5 +1,5 @@
 <template>
-    <div class="content">
+    <div class="content notification-content">
         <div class="create-wrapper">
             <div>
                 <img class="back" src="@/assets/arrow.png" @click="() => router.go(-1)">
@@ -130,7 +130,7 @@
         }
 
         try {
-            const response = await axios.post('http://localhost:5050/notifications', {
+            const response = await axios.post('/api/notifications', {
                 deviceToken: props.deviceToken,
                 password: passwordModel.value,
                 message: notifyMessageModel.value,
@@ -177,12 +177,18 @@
 
 
 <style scoped>
+    .notification-content {
+        display: flex;
+        justify-content: center;
+    }
+
     .create-wrapper {
         background-color: #EBF5FB;
         padding: 32px;
         margin-top: 24px;
         border-radius: 20px;
         margin-bottom: 48px;
+        width: 65%;
     }
 
     h1 {
@@ -197,7 +203,7 @@
     form {
         display: flex;
         flex-direction: column;
-        gap: 28px;
+        gap: 24px;
     }
 
     input[type="text"], input[type="password"], input[type="time"] {
@@ -297,10 +303,6 @@
         font-size: 0.9rem;
     }
 
-    /* .day-selector__day:hover {
-        background-color: #f0f0f0;
-    } */
-
     .day-selector__day--selected {
         background-color: #4CAF50;
         color: white;
@@ -357,6 +359,10 @@
             width: 129px;
             height: 43px;
             font-size: 16px;
+        }
+
+        .create-wrapper {
+            width: 100%;
         }
     }
 </style>

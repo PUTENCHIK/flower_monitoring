@@ -65,7 +65,7 @@
         }
 
         try {
-            const response = await axios.post('http://localhost:5050/devices/data', {
+            const response = await axios.post('/api/devices/data', {
                 deviceToken: addDeviceInputValue.value
             });
             console.log('Успешный ответ:', response.data);
@@ -185,7 +185,7 @@
 
         for (let i = 0; i < localDevices.length; i++) {
             try {
-                const response = await axios.post('http://localhost:5050/devices/data', {
+                const response = await axios.post('/api/devices/data', {
                     deviceToken: localDevices[i]
                 });
                 console.log('Успешный ответ:', response.data);
@@ -245,7 +245,7 @@
         }
 
         try {
-            const response = await axios.post('http://localhost:5050/devices/data', {
+            const response = await axios.post('/api/devices/data', {
                 deviceToken: deviceToken
             });
             console.log('Успешный ответ:', response.data);
