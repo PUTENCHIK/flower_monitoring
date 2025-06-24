@@ -1,5 +1,5 @@
 import re
-from datetime import datetime
+from datetime import datetime, timezone, timedelta
 from fastapi import status
 from sqlalchemy import select, and_
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -68,7 +68,10 @@ async def _update_data(request: UpdateDataRequestModel, db: AsyncSession):
     if not verify_password(request.password, device.password):
         raise DeviceException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid password")
 
-    device.last_activity = datetime.now()
+    utc_now = datetime.now(timezone.utc)
+    moscow_timezone = timezone(timedelta(hours=3))
+    moscow_now = utc_now.astimezone(moscow_timezone)
+    device.last_activity = moscow_now
 
     for port_number_str, port_config in request.ports.items():
         try:

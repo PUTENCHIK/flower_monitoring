@@ -17,7 +17,7 @@
                     </div>
                 </div>
 
-                <span class="lastActivity"> {{ props.device.lastActivity == "Данные ещё не приходили" ? props.device.lastActivity : `Обновлено: ${props.device.lastActivity}` }}</span>
+                <span class="lastActivity"> {{ props.device.lastActivity == "Данные ещё не приходили" ? props.device.lastActivity : `Обновлено: ${props.device.lastActivity} по МСК` }}</span>
             </div>
             <div class="cards">
                 <Card v-for="item in props.device.ports"  
